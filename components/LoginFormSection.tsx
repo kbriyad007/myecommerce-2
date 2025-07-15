@@ -10,7 +10,7 @@ const supabase = createClient(
 );
 
 interface LoginFormSectionProps {
-  onSuccess?: () => void; // optional callback after login/register success
+  onSuccess?: () => void; // ✅ called after successful login
 }
 
 export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
@@ -29,7 +29,10 @@ export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
       if (authMode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+
         setMessage("✅ Logged in successfully!");
+
+        // ✅ Trigger callback for parent to redirect or close modal
         if (onSuccess) onSuccess();
       } else {
         const { error } = await supabase.auth.signUp({
