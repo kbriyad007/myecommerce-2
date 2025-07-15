@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import LoginFormSection from "./LoginFormSection";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import LoginFormSection from "./LoginFormSection";
 
 interface NavbarProps {
   onSearch: (value: string) => void;
@@ -14,7 +14,7 @@ interface NavbarProps {
 export default function Navbar({ onSearch, suggestions }: NavbarProps) {
   const [searchValue, setSearchValue] = useState("");
   const [showLogin, setShowLogin] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const router = useRouter();
 
   const handleLoginSuccess = () => {
@@ -31,89 +31,89 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-sm shadow-md shadow-black/10">
+      <header className="fixed top-0 left-0 w-full z-50 bg-white/60 backdrop-blur-md shadow shadow-black/10">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="text-2xl font-bold text-blue-600">
-            My<span className="text-gray-800">Store</span>
+            Modern<span className="text-gray-900">Shop</span>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex space-x-6 items-center">
+          <nav className="hidden lg:flex items-center gap-8 text-sm">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm text-gray-700 hover:text-blue-600 transition-colors"
+                className="text-gray-700 hover:text-blue-600 transition duration-200 font-medium"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          {/* Search bar (desktop only) */}
-          <div className="hidden md:block relative w-64">
+          {/* Search bar (desktop) */}
+          <div className="hidden lg:block relative w-64">
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Search products..."
               value={searchValue}
               onChange={(e) => {
                 setSearchValue(e.target.value);
                 onSearch(e.target.value);
               }}
-              className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full text-sm px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
             />
             {searchValue && suggestions.length > 0 && (
-              <ul className="absolute z-10 mt-1 w-full bg-white border rounded shadow">
+              <ul className="absolute mt-1 bg-white w-full shadow-lg border rounded-md z-10">
                 {suggestions
                   .filter((s) =>
                     s.toLowerCase().includes(searchValue.toLowerCase())
                   )
-                  .map((suggestion, idx) => (
+                  .map((s, i) => (
                     <li
-                      key={idx}
+                      key={i}
                       onClick={() => {
-                        setSearchValue(suggestion);
-                        onSearch(suggestion);
+                        setSearchValue(s);
+                        onSearch(s);
                       }}
-                      className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
                     >
-                      {suggestion}
+                      {s}
                     </li>
                   ))}
               </ul>
             )}
           </div>
 
-          {/* Right-side buttons */}
-          <div className="flex items-center space-x-4 md:space-x-6">
+          {/* Right buttons */}
+          <div className="flex items-center gap-4">
             <button
               onClick={() => setShowLogin(true)}
-              className="text-sm text-blue-600 font-medium hover:underline"
+              className="text-sm font-medium text-blue-600 hover:underline"
             >
               Login
             </button>
 
             {/* Hamburger */}
             <button
-              className="md:hidden text-gray-700"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="lg:hidden text-gray-700"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden px-4 pb-4 space-y-2 border-t border-gray-200 bg-white/90 backdrop-blur-sm shadow-inner">
-            <nav className="flex flex-col gap-2">
+        {/* Mobile Menu */}
+        {mobileOpen && (
+          <div className="lg:hidden px-4 pb-4 pt-2 bg-white/90 backdrop-blur-md shadow-inner border-t border-gray-200">
+            <nav className="flex flex-col gap-3 mb-4">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm text-gray-700 hover:text-blue-600"
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={() => setMobileOpen(false)}
+                  className="text-gray-800 font-medium hover:text-blue-600 transition"
                 >
                   {link.label}
                 </Link>
@@ -121,7 +121,7 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
             </nav>
 
             {/* Mobile Search */}
-            <div className="relative mt-3">
+            <div className="relative">
               <input
                 type="text"
                 placeholder="Search..."
@@ -130,25 +130,25 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
                   setSearchValue(e.target.value);
                   onSearch(e.target.value);
                 }}
-                className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full text-sm px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
               />
               {searchValue && suggestions.length > 0 && (
-                <ul className="absolute z-10 mt-1 w-full bg-white border rounded shadow">
+                <ul className="absolute mt-1 bg-white w-full shadow-lg border rounded-md z-10">
                   {suggestions
                     .filter((s) =>
                       s.toLowerCase().includes(searchValue.toLowerCase())
                     )
-                    .map((suggestion, idx) => (
+                    .map((s, i) => (
                       <li
-                        key={idx}
+                        key={i}
                         onClick={() => {
-                          setSearchValue(suggestion);
-                          onSearch(suggestion);
-                          setMobileMenuOpen(false);
+                          setSearchValue(s);
+                          onSearch(s);
+                          setMobileOpen(false);
                         }}
-                        className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                        className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
                       >
-                        {suggestion}
+                        {s}
                       </li>
                     ))}
                 </ul>
