@@ -1,7 +1,15 @@
 "use client";
 
+import {
+  Mail,
+  Lock,
+  UserPlus,
+  LogIn,
+  Loader2,
+  Facebook,
+  MailCheck,
+} from "lucide-react";
 import { useState } from "react";
-import { Mail, Lock, UserPlus, LogIn, Loader2, Facebook, Github, MailCheck } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -20,7 +28,7 @@ export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
@@ -30,57 +38,52 @@ export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         setMessage("✅ Logged in successfully!");
-        onSuccess?.();
+        if (onSuccess) onSuccess();
       } else {
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL + "/auth/callback",
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
           },
         });
         if (error) throw error;
-        setMessage("✅ Registered successfully! Check your email to confirm.");
+        setMessage("✅ Registered! Check your email to confirm.");
       }
-    } catch (err: any) {
-      setMessage("❌ " + err.message || "Unknown error");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setMessage("❌ " + err.message);
+      } else {
+        setMessage("❌ An unknown error occurred.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOAuthLogin = async (provider: "google" | "facebook") => {
-    setLoading(true);
+  const handleOAuth = async (provider: "google" | "facebook") => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: process.env.NEXT_PUBLIC_SITE_URL + "/auth/callback",
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
       },
     });
-    if (error) setMessage(`❌ ${error.message}`);
-    setLoading(false);
+    if (error) setMessage("❌ " + error.message);
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto bg-white shadow-xl rounded-2xl p-6 font-sans">
-      {/* Header */}
-      <div className="flex flex-col items-center">
-        <div className="bg-blue-100 text-blue-600 rounded-full p-3 mb-2">
+    <div className="w-[380px] mx-auto mt-12 bg-white rounded-xl shadow-lg p-6 font-sans border border-gray-200">
+      <div className="flex flex-col items-center mb-6">
+        <div className="bg-blue-100 text-blue-600 rounded-full p-2">
           {authMode === "login" ? <LogIn className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
         </div>
-        <h2 className="text-2xl font-bold text-gray-800 mb-1">
-          {authMode === "login" ? "Login" : "Register"}
+        <h2 className="text-2xl font-semibold text-gray-800 mt-2">
+          {authMode === "login" ? "Login to your account" : "Create a new account"}
         </h2>
-        <p className="text-sm text-gray-500">
-          {authMode === "login"
-            ? "Welcome back! Please enter your details."
-            : "Create an account to get started."}
-        </p>
       </div>
 
-      {/* Email Form */}
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <div className="flex items-center gap-3 border border-gray-300 rounded-lg px-3 py-2">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2">
           <Mail className="w-4 h-4 text-gray-400" />
           <input
             type="email"
@@ -92,7 +95,7 @@ export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
           />
         </div>
 
-        <div className="flex items-center gap-3 border border-gray-300 rounded-lg px-3 py-2">
+        <div className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2">
           <Lock className="w-4 h-4 text-gray-400" />
           <input
             type="password"
@@ -107,52 +110,46 @@ export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 text-sm font-semibold transition disabled:opacity-60"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 font-medium text-sm flex items-center justify-center gap-2 disabled:opacity-60"
         >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+          {loading && <Loader2 className="w-4 h-4 animate-spin" />}
           {authMode === "login" ? "Login" : "Register"}
         </button>
       </form>
 
-      {/* Message */}
       {message && (
         <p className="mt-4 text-center text-sm text-gray-600 whitespace-pre-wrap">{message}</p>
       )}
 
-      {/* Divider */}
       <div className="flex items-center my-5">
         <hr className="flex-grow border-gray-200" />
-        <span className="mx-2 text-gray-400 text-xs uppercase">or continue with</span>
+        <span className="mx-3 text-gray-400 text-sm">OR</span>
         <hr className="flex-grow border-gray-200" />
       </div>
 
-      {/* OAuth Buttons */}
       <div className="space-y-2">
         <button
-          onClick={() => handleOAuthLogin("google")}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-lg py-2 text-sm font-medium hover:bg-gray-50 transition"
+          onClick={() => handleOAuth("google")}
+          className="w-full border border-gray-300 rounded-md py-2 text-sm font-medium hover:bg-gray-50 flex items-center justify-center gap-2"
         >
           <MailCheck className="w-4 h-4 text-red-500" />
-          Continue with Gmail
+          Continue with Google
         </button>
 
         <button
-          onClick={() => handleOAuthLogin("facebook")}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-lg py-2 text-sm font-medium hover:bg-gray-50 transition"
+          onClick={() => handleOAuth("facebook")}
+          className="w-full border border-gray-300 rounded-md py-2 text-sm font-medium hover:bg-gray-50 flex items-center justify-center gap-2"
         >
-          <Facebook className="w-4 h-4 text-blue-500" />
+          <Facebook className="w-4 h-4 text-blue-600" />
           Continue with Facebook
         </button>
       </div>
 
-      {/* Toggle Auth Mode */}
-      <p className="text-center text-sm text-gray-500 mt-6">
+      <p className="text-center text-sm text-gray-500 mt-5">
         {authMode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
         <button
           type="button"
-          className="text-blue-600 font-semibold hover:underline"
+          className="text-blue-600 font-medium hover:underline"
           onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}
         >
           {authMode === "login" ? "Register" : "Login"}
