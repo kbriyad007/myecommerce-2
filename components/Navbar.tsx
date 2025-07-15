@@ -1,145 +1,128 @@
 "use client";
 
+import { Mail, Lock, UserPlus, LogIn } from "lucide-react";
 import { useState } from "react";
-import Link from "next/link";
-import { useCart } from "@/context/CartContext";
-import { ShoppingCart, Search, Menu, X } from "lucide-react";
-import SearchBar from "./SearchBar";
-import AuthModal from "./AuthModal"; // ✅ Import the modal
+import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation"; // ✅ import router
 
-interface NavbarProps {
-  onSearch: (val: string) => void;
-  suggestions: string[];
-}
+// Setup Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
-export default function Navbar({ onSearch, suggestions }: NavbarProps) {
-  const { cart } = useCart();
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+export default function LoginFormSection() {
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  const router = useRouter(); // ✅ setup router
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
+
+    try {
+      if (authMode === "login") {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        setMessage("✅ Logged in successfully!");
+        router.push("/admin"); // ✅ redirect after login
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL + "/auth/callback",
+          },
+        });
+        if (error) throw error;
+        setMessage("✅ Registered successfully! Check your email to confirm.");
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setMessage(`❌ ${err.message}`);
+      } else {
+        setMessage("❌ An unknown error occurred.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <>
-      <header className="w-full bg-white border-b shadow-sm sticky top-0 z-50">
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:opacity-90 transition-opacity duration-300"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-8 h-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M5 8h14l-1.5 9h-11L5 8zM7 8V6a5 5 0 0110 0v2"
-              />
-            </svg>
-            <span>MyShop</span>
-          </Link>
+    <div className="w-[380px] mx-auto mt-12 bg-white rounded-md shadow-lg p-6 font-sans">
+      {/* Icon and Title */}
+      <div className="flex flex-col items-center">
+        <div className="bg-blue-100 text-blue-600 rounded-full p-2 mb-2">
+          {authMode === "login" ? <LogIn className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
+        </div>
+        <h2 className="text-xl font-semibold text-gray-800">
+          {authMode === "login" ? "Login" : "Register"}
+        </h2>
+      </div>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            <ul className="flex gap-6 text-sm font-medium text-gray-700 items-center">
-              {["Home", "Products", "About", "Contact"].map((item) => (
-                <li key={item}>
-                  <Link
-                    href={`/${item.toLowerCase() === "home" ? "" : item.toLowerCase()}`}
-                    className="hover:text-blue-600 transition-colors"
-                  >
-                    <span className="hover:underline underline-offset-4 decoration-2 decoration-blue-500">
-                      {item}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-              <li>
-                <button
-                  onClick={() => setShowAuthModal(true)}
-                  className="hover:text-blue-600 transition-colors"
-                >
-                  <span className="hover:underline underline-offset-4 decoration-2 decoration-blue-500">
-                    Login
-                  </span>
-                </button>
-              </li>
-            </ul>
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <div className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2">
+          <Mail className="w-4 h-4 text-gray-400" />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            required
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full bg-transparent outline-none text-sm"
+          />
+        </div>
 
-            {/* Search */}
-            <div className="relative flex items-center w-64">
-              <Search className="w-5 h-5 text-gray-400 mr-3" />
-              <SearchBar onSearch={onSearch} suggestions={suggestions} />
-            </div>
-          </div>
+        <div className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2">
+          <Lock className="w-4 h-4 text-gray-400" />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            required
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full bg-transparent outline-none text-sm"
+          />
+        </div>
 
-          {/* Cart + Hamburger */}
-          <div className="flex items-center space-x-4 md:space-x-6">
-            <Link
-              href="/checkout"
-              className="relative hover:text-blue-600 transition"
-              aria-label="Cart"
-            >
-              <ShoppingCart className="w-6 h-6 text-gray-700" />
-              {totalItems > 0 && (
-                <span className="absolute -top-2 -right-3 bg-blue-600 text-white text-xs rounded-full px-1.5 font-semibold select-none">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden text-gray-700 hover:text-blue-600 transition"
-              aria-label="Toggle Menu"
-            >
-              {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-        </nav>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 font-medium text-sm disabled:opacity-60"
+        >
+          {loading ? "Please wait..." : authMode === "login" ? "Login" : "Register"}
+        </button>
+      </form>
 
-        {/* Mobile Menu */}
-        {menuOpen && (
-          <div className="md:hidden border-t px-4 pb-4 pt-2 bg-white shadow-sm">
-            <ul className="flex flex-col gap-3 text-sm font-medium text-gray-700">
-              {["Home", "Products", "About", "Contact"].map((item) => (
-                <li key={item}>
-                  <Link
-                    href={`/${item.toLowerCase() === "home" ? "" : item.toLowerCase()}`}
-                    className="block hover:text-blue-600 transition-colors"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {item}
-                  </Link>
-                </li>
-              ))}
-              <li>
-                <button
-                  onClick={() => {
-                    setMenuOpen(false);
-                    setShowAuthModal(true);
-                  }}
-                  className="text-left w-full hover:text-blue-600 transition"
-                >
-                  Login
-                </button>
-              </li>
-            </ul>
-            <div className="mt-4 flex items-center border rounded-lg px-3 py-2 bg-gray-100">
-              <Search className="w-5 h-5 text-gray-400 mr-2" />
-              <SearchBar onSearch={onSearch} suggestions={suggestions} />
-            </div>
-          </div>
-        )}
-      </header>
+      {/* Message */}
+      {message && (
+        <p className="mt-3 text-center text-sm text-gray-600 whitespace-pre-wrap">{message}</p>
+      )}
 
-      {/* ✅ Reusable AuthModal */}
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
-    </>
+      {/* Divider */}
+      <div className="flex items-center my-4">
+        <hr className="flex-grow border-gray-200" />
+        <span className="mx-2 text-gray-400 text-sm">or</span>
+        <hr className="flex-grow border-gray-200" />
+      </div>
+
+      {/* Toggle Auth Mode */}
+      <p className="text-center text-sm text-gray-500">
+        {authMode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
+        <button
+          type="button"
+          className="text-blue-600 font-medium hover:underline"
+          onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}
+        >
+          {authMode === "login" ? "Register" : "Login"}
+        </button>
+      </p>
+    </div>
   );
 }
