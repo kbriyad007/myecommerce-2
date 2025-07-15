@@ -114,7 +114,7 @@ export default function Page() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-600 text-lg font-medium px-4">
+      <div className="min-h-screen flex items-center justify-center text-gray-600 text-lg font-semibold px-4">
         Loading products...
       </div>
     );
@@ -122,7 +122,7 @@ export default function Page() {
 
   if (errorMsg) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-red-600 text-lg font-medium px-4">
+      <div className="min-h-screen flex items-center justify-center text-red-600 text-lg font-semibold px-4">
         ❌ {errorMsg}
       </div>
     );
@@ -130,58 +130,89 @@ export default function Page() {
 
   if (products.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-600 text-lg font-medium px-4">
+      <div className="min-h-screen flex items-center justify-center text-gray-600 text-lg font-semibold px-4">
         No products found.
       </div>
     );
   }
 
   return (
-    <main className="bg-gray-50 min-h-screen font-sans">
+    <main className="bg-gradient-to-b from-white to-gray-100 min-h-screen font-sans">
       <Navbar
         onSearch={setSearchTerm}
         suggestions={products.map((p) => p.name || "")}
       />
       <HeroSection />
 
-      <div className="px-2 py-2 lg:px-4 lg:py-16 max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-center text-gray-800 mb-12">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h1 className="text-4xl font-extrabold text-center text-gray-900 mb-16 drop-shadow-sm">
           ✨ Featured Products
         </h1>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div
+          className="
+            grid
+            grid-cols-1
+            sm:grid-cols-2
+            md:grid-cols-3
+            lg:grid-cols-4
+            gap-8
+          "
+        >
           {filteredProducts.map((product, i) => {
             const slug = product.slug || slugify(product.name || `product-${i}`);
             const imageUrl = getImageUrl(product.image, product._version);
             return (
               <Link key={slug} href={`/products/${slug}`} passHref>
-                <div className="bg-white rounded-md shadow-lg hover:shadow-xl transition overflow-hidden group border border-gray-100 cursor-pointer">
+                <article
+                  tabIndex={0}
+                  className="
+                    bg-white
+                    rounded-xl
+                    shadow-lg
+                    hover:shadow-2xl
+                    transform
+                    hover:-translate-y-1
+                    transition
+                    duration-300
+                    ease-in-out
+                    cursor-pointer
+                    flex
+                    flex-col
+                    overflow-hidden
+                    focus:outline-none
+                    focus:ring-4
+                    focus:ring-blue-400
+                  "
+                  aria-label={`View details for ${product.name}`}
+                >
                   <div className="relative w-full pt-[75%] bg-gray-100">
                     {imageUrl ? (
                       <Image
                         src={imageUrl}
                         alt={product.name || "Product image"}
                         fill
-                        className="object-cover transition duration-300 group-hover:scale-105"
+                        className="object-cover transition duration-500 group-hover:scale-105"
                         unoptimized
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
-                        No image
+                        No image available
                       </div>
                     )}
                   </div>
-                  <div className="p-4 flex flex-col justify-between flex-1">
-                    <div>
-                      <h2 className="font-semibold text-gray-900 text-lg mb-2 truncate">
+
+                  <div className="p-5 flex flex-col justify-between flex-1">
+                    <div className="mb-4">
+                      <h2 className="text-xl font-semibold text-gray-900 truncate">
                         {product.name || "Unnamed Product"}
                       </h2>
-                      <p className="text-gray-500 text-sm line-clamp-2">
+                      <p className="text-gray-600 text-sm mt-1 line-clamp-3">
                         {product.description}
                       </p>
                     </div>
-                    <div className="mt-4">
-                      <p className="text-blue-600 font-semibold text-base mb-2">
+                    <div className="mt-auto">
+                      <p className="text-blue-600 font-bold text-lg mb-3">
                         ${product.price ?? "N/A"}
                       </p>
                       <button
@@ -189,25 +220,74 @@ export default function Page() {
                           e.preventDefault();
                           handleAddToCart(product, i);
                         }}
-                        className={`w-full py-2 rounded-xl text-sm font-medium text-white transition ${
-                          addedToCartIndex === i
-                            ? "bg-green-600"
-                            : "bg-blue-600 hover:bg-blue-700"
-                        }`}
+                        className={`
+                          w-full
+                          py-3
+                          rounded-2xl
+                          text-sm
+                          font-semibold
+                          text-white
+                          shadow-md
+                          transition
+                          duration-300
+                          ease-in-out
+                          ${
+                            addedToCartIndex === i
+                              ? "bg-green-600 hover:bg-green-700"
+                              : "bg-blue-600 hover:bg-blue-700"
+                          }
+                          focus:outline-none
+                          focus:ring-2
+                          focus:ring-offset-2
+                          focus:ring-blue-400
+                        `}
+                        aria-label={`Add ${product.name} to cart`}
                       >
                         {addedToCartIndex === i ? "✔ Added" : "🛒 Add to Cart"}
                       </button>
                     </div>
                   </div>
-                </div>
+                </article>
               </Link>
             );
           })}
         </div>
+      </section>
 
-        <div className="mt-16">
-          <CartMenu />
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center drop-shadow-sm">
+          Why Shop With Us?
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
+          <div className="p-6 bg-white rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
+            <h3 className="text-xl font-semibold mb-3 text-blue-600">
+              Fast Shipping
+            </h3>
+            <p className="text-gray-600 text-sm">
+              We ensure quick delivery to your doorstep, always on time.
+            </p>
+          </div>
+          <div className="p-6 bg-white rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
+            <h3 className="text-xl font-semibold mb-3 text-blue-600">
+              Quality Products
+            </h3>
+            <p className="text-gray-600 text-sm">
+              All our products are carefully selected to ensure the best quality.
+            </p>
+          </div>
+          <div className="p-6 bg-white rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
+            <h3 className="text-xl font-semibold mb-3 text-blue-600">
+              24/7 Support
+            </h3>
+            <p className="text-gray-600 text-sm">
+              Our team is here to assist you anytime, anywhere.
+            </p>
+          </div>
         </div>
+      </section>
+
+      <div className="mt-20 mb-10 px-4 max-w-7xl mx-auto">
+        <CartMenu />
       </div>
     </main>
   );
