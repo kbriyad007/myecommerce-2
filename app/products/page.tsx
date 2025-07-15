@@ -137,48 +137,26 @@ export default function Page() {
   }
 
   return (
-    <main className="bg-gradient-to-b from-white to-gray-100 min-h-screen font-sans">
+    <main className="bg-gray-50 min-h-screen font-sans">
       <Navbar
         onSearch={setSearchTerm}
         suggestions={products.map((p) => p.name || "")}
       />
       <HeroSection />
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-4xl font-extrabold text-center text-gray-900 mb-16 drop-shadow-sm">
+      <section className="max-w-7xl mx-auto px-2 sm:px-4 py-10">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
           ✨ Featured Products
         </h1>
 
-        <div
-          className="
-            grid
-            grid-cols-2
-            sm:grid-cols-2
-            md:grid-cols-3
-            lg:grid-cols-4
-            gap-6
-          "
-        >
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {filteredProducts.map((product, i) => {
             const slug = product.slug || slugify(product.name || `product-${i}`);
             const imageUrl = getImageUrl(product.image, product._version);
             return (
               <Link key={slug} href={`/products/${slug}`} passHref>
                 <article
-                  tabIndex={0}
-                  className="
-                    bg-white
-                    rounded-xl
-                    shadow-lg
-                    cursor-pointer
-                    flex
-                    flex-col
-                    overflow-hidden
-                    focus:outline-none
-                    focus:ring-4
-                    focus:ring-blue-400
-                  "
-                  aria-label={`View details for ${product.name}`}
+                  className="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden"
                 >
                   <div className="relative w-full pt-[75%] bg-gray-100">
                     {imageUrl ? (
@@ -191,22 +169,23 @@ export default function Page() {
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
-                        No image available
+                        No image
                       </div>
                     )}
                   </div>
 
-                  <div className="p-5 flex flex-col justify-between flex-1">
-                    <div className="mb-4">
-                      <h2 className="text-xl font-semibold text-gray-900 truncate">
+                  <div className="p-3 flex flex-col h-full justify-between">
+                    <div>
+                      <h2 className="font-medium text-gray-900 text-base truncate">
                         {product.name || "Unnamed Product"}
                       </h2>
-                      <p className="text-gray-600 text-sm mt-1 line-clamp-3">
+                      <p className="text-gray-500 text-sm mt-1 line-clamp-2">
                         {product.description}
                       </p>
                     </div>
-                    <div className="mt-auto">
-                      <p className="text-blue-600 font-bold text-lg mb-3">
+
+                    <div className="mt-2">
+                      <p className="text-blue-600 font-semibold text-sm mb-1">
                         ${product.price ?? "N/A"}
                       </p>
                       <button
@@ -214,22 +193,11 @@ export default function Page() {
                           e.preventDefault();
                           handleAddToCart(product, i);
                         }}
-                        className={`
-                          w-full
-                          py-3
-                          rounded-2xl
-                          text-sm
-                          font-semibold
-                          text-white
-                          shadow-md
-                          bg-blue-600
-                          hover:bg-blue-700
-                          focus:outline-none
-                          focus:ring-2
-                          focus:ring-offset-2
-                          focus:ring-blue-400
-                        `}
-                        aria-label={`Add ${product.name} to cart`}
+                        className={`w-full py-2 text-sm rounded-lg font-medium text-white ${
+                          addedToCartIndex === i
+                            ? "bg-green-600"
+                            : "bg-blue-600 hover:bg-blue-700"
+                        }`}
                       >
                         {addedToCartIndex === i ? "✔ Added" : "🛒 Add to Cart"}
                       </button>
@@ -242,39 +210,7 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center drop-shadow-sm">
-          Why Shop With Us?
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-          <div className="p-6 bg-white rounded-xl shadow-lg transition duration-300">
-            <h3 className="text-xl font-semibold mb-3 text-blue-600">
-              Fast Shipping
-            </h3>
-            <p className="text-gray-600 text-sm">
-              We ensure quick delivery to your doorstep, always on time.
-            </p>
-          </div>
-          <div className="p-6 bg-white rounded-xl shadow-lg transition duration-300">
-            <h3 className="text-xl font-semibold mb-3 text-blue-600">
-              Quality Products
-            </h3>
-            <p className="text-gray-600 text-sm">
-              All our products are carefully selected to ensure the best quality.
-            </p>
-          </div>
-          <div className="p-6 bg-white rounded-xl shadow-lg transition duration-300">
-            <h3 className="text-xl font-semibold mb-3 text-blue-600">
-              24/7 Support
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Our team is here to assist you anytime, anywhere.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <div className="mt-20 mb-10 px-4 max-w-7xl mx-auto">
+      <div className="px-4 mt-10 max-w-7xl mx-auto">
         <CartMenu />
       </div>
     </main>
