@@ -18,11 +18,13 @@ interface MyProduct {
   slug?: string;
   _version?: number;
 }
+
 interface StoryblokStory {
   slug: string;
   content: MyProduct;
   _version?: number;
 }
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -49,10 +51,10 @@ export default function Page() {
       setLoading(false);
       return;
     }
-    const url = https://api.storyblok.com/v2/cdn/stories?starts_with=product&version=draft&token=${token};
+    const url = `https://api.storyblok.com/v2/cdn/stories?starts_with=product&version=draft&token=${token}`;
     fetch(url)
       .then((res) => {
-        if (!res.ok) throw new Error(HTTP error: ${res.status});
+        if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
         return res.json();
       })
       .then((data) => {
@@ -103,17 +105,33 @@ export default function Page() {
     version?: number
   ): string | null => {
     if (typeof image === "string") {
-      return image.startsWith("//") ? https:${image} : image;
+      return image.startsWith("//") ? `https:${image}` : image;
     } else if (image?.filename) {
-      return https://a.storyblok.com${image.filename}?v=${version || "1"};
+      return `https://a.storyblok.com${image.filename}?v=${version || "1"}`;
     }
     return null;
   };
 
-  if (loading || errorMsg || products.length === 0) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-600 text-lg font-medium px-4">
-        {errorMsg ? ❌ ${errorMsg} : "Loading products..."}
+        Loading products...
+      </div>
+    );
+  }
+
+  if (errorMsg) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-600 text-lg font-medium px-4">
+        ❌ {errorMsg}
+      </div>
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-600 text-lg font-medium px-4">
+        No products found.
       </div>
     );
   }
@@ -131,13 +149,13 @@ export default function Page() {
           ✨ Featured Products
         </h1>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredProducts.map((product, i) => {
-            const slug = product.slug || slugify(product.name || product-${i});
+            const slug = product.slug || slugify(product.name || `product-${i}`);
             const imageUrl = getImageUrl(product.image, product._version);
             return (
-              <Link key={slug} href={/products/${slug}}>
-                <div className="bg-white rounded-md shadow-lg hover:shadow-xl transition overflow-hidden group border border-gray-100">
+              <Link key={slug} href={`/products/${slug}`} passHref>
+                <div className="bg-white rounded-md shadow-lg hover:shadow-xl transition overflow-hidden group border border-gray-100 cursor-pointer">
                   <div className="relative w-full pt-[75%] bg-gray-100">
                     {imageUrl ? (
                       <Image
@@ -153,9 +171,9 @@ export default function Page() {
                       </div>
                     )}
                   </div>
-                  <div className="p-2 lg:p-5 flex flex-col justify-between flex-1">
+                  <div className="p-4 flex flex-col justify-between flex-1">
                     <div>
-                      <h2 className="font-semibold text-gray-900 text-lg mb-1 truncate">
+                      <h2 className="font-semibold text-gray-900 text-lg mb-2 truncate">
                         {product.name || "Unnamed Product"}
                       </h2>
                       <p className="text-gray-500 text-sm line-clamp-2">
@@ -171,11 +189,11 @@ export default function Page() {
                           e.preventDefault();
                           handleAddToCart(product, i);
                         }}
-                        className={w-full py-2 rounded-xl text-sm font-medium text-white transition ${
+                        className={`w-full py-2 rounded-xl text-sm font-medium text-white transition ${
                           addedToCartIndex === i
                             ? "bg-green-600"
                             : "bg-blue-600 hover:bg-blue-700"
-                        }}
+                        }`}
                       >
                         {addedToCartIndex === i ? "✔ Added" : "🛒 Add to Cart"}
                       </button>
@@ -193,4 +211,4 @@ export default function Page() {
       </div>
     </main>
   );
-} 
+}
