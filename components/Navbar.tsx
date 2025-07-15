@@ -31,52 +31,52 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
 
   return (
     <>
-      <header className="bg-white shadow-md sticky top-0 z-50 font-sans">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-sm shadow-md shadow-black/10">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          {/* Brand */}
-          <h1 className="text-xl font-bold text-blue-600 tracking-tight">
+          {/* Logo */}
+          <Link href="/" className="text-2xl font-bold text-blue-600">
             My<span className="text-gray-800">Store</span>
-          </h1>
+          </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex space-x-6">
+          <nav className="hidden md:flex space-x-6 items-center">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm text-gray-700 hover:text-blue-600 transition-colors duration-200"
+                className="text-sm text-gray-700 hover:text-blue-600 transition-colors"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          {/* Search bar */}
-          <div className="relative hidden md:block w-72">
+          {/* Search bar (desktop only) */}
+          <div className="hidden md:block relative w-64">
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search..."
               value={searchValue}
               onChange={(e) => {
                 setSearchValue(e.target.value);
                 onSearch(e.target.value);
               }}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
             />
             {searchValue && suggestions.length > 0 && (
-              <ul className="absolute top-full left-0 w-full bg-white border border-gray-200 rounded-md shadow-md mt-1 z-10">
+              <ul className="absolute z-10 mt-1 w-full bg-white border rounded shadow">
                 {suggestions
                   .filter((s) =>
                     s.toLowerCase().includes(searchValue.toLowerCase())
                   )
-                  .map((suggestion, index) => (
+                  .map((suggestion, idx) => (
                     <li
-                      key={index}
-                      className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                      key={idx}
                       onClick={() => {
                         setSearchValue(suggestion);
                         onSearch(suggestion);
                       }}
+                      className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                     >
                       {suggestion}
                     </li>
@@ -85,82 +85,86 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
             )}
           </div>
 
-          {/* Login + Hamburger */}
+          {/* Right-side buttons */}
           <div className="flex items-center space-x-4 md:space-x-6">
             <button
               onClick={() => setShowLogin(true)}
-              className="text-blue-600 text-sm font-medium hover:underline"
+              className="text-sm text-blue-600 font-medium hover:underline"
             >
               Login
             </button>
+
+            {/* Hamburger */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden text-gray-700"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Nav */}
+        {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden px-4 pb-4 space-y-2 border-t border-gray-100">
-            <nav className="flex flex-col space-y-2">
+          <div className="md:hidden px-4 pb-4 space-y-2 border-t border-gray-200 bg-white/90 backdrop-blur-sm shadow-inner">
+            <nav className="flex flex-col gap-2">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
+                  className="text-sm text-gray-700 hover:text-blue-600"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-sm text-gray-700 hover:text-blue-600 transition-colors duration-200"
                 >
                   {link.label}
                 </Link>
               ))}
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchValue}
-                  onChange={(e) => {
-                    setSearchValue(e.target.value);
-                    onSearch(e.target.value);
-                  }}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                {searchValue && suggestions.length > 0 && (
-                  <ul className="absolute top-full left-0 w-full bg-white border border-gray-200 rounded-md shadow-md mt-1 z-10">
-                    {suggestions
-                      .filter((s) =>
-                        s.toLowerCase().includes(searchValue.toLowerCase())
-                      )
-                      .map((suggestion, index) => (
-                        <li
-                          key={index}
-                          className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
-                          onClick={() => {
-                            setSearchValue(suggestion);
-                            onSearch(suggestion);
-                            setMobileMenuOpen(false);
-                          }}
-                        >
-                          {suggestion}
-                        </li>
-                      ))}
-                  </ul>
-                )}
-              </div>
             </nav>
+
+            {/* Mobile Search */}
+            <div className="relative mt-3">
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchValue}
+                onChange={(e) => {
+                  setSearchValue(e.target.value);
+                  onSearch(e.target.value);
+                }}
+                className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+              {searchValue && suggestions.length > 0 && (
+                <ul className="absolute z-10 mt-1 w-full bg-white border rounded shadow">
+                  {suggestions
+                    .filter((s) =>
+                      s.toLowerCase().includes(searchValue.toLowerCase())
+                    )
+                    .map((suggestion, idx) => (
+                      <li
+                        key={idx}
+                        onClick={() => {
+                          setSearchValue(suggestion);
+                          onSearch(suggestion);
+                          setMobileMenuOpen(false);
+                        }}
+                        className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      >
+                        {suggestion}
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </div>
           </div>
         )}
       </header>
 
       {/* Login Modal */}
       {showLogin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center px-4">
+          <div className="relative bg-white rounded-xl shadow-lg w-full max-w-md">
             <button
               onClick={() => setShowLogin(false)}
-              className="absolute top-2 right-3 text-gray-400 hover:text-gray-600 text-xl font-bold"
+              className="absolute top-2 right-3 text-gray-500 hover:text-black text-xl font-bold"
             >
               ×
             </button>
