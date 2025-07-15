@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import LoginFormSection from "./LoginFormSection";
 
 interface NavbarProps {
@@ -11,10 +12,11 @@ interface NavbarProps {
 export default function Navbar({ onSearch, suggestions }: NavbarProps) {
   const [searchValue, setSearchValue] = useState("");
   const [showLogin, setShowLogin] = useState(false);
+  const router = useRouter(); // ✅ router for redirect
 
-  const handleInput = (value: string) => {
-    setSearchValue(value);
-    onSearch(value); // Update search term in page
+  const handleLoginSuccess = () => {
+    setShowLogin(false); // hide modal
+    router.push("/admin"); // ✅ redirect to admin page
   };
 
   return (
@@ -28,7 +30,10 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
               type="text"
               placeholder="Search products..."
               value={searchValue}
-              onChange={(e) => handleInput(e.target.value)}
+              onChange={(e) => {
+                setSearchValue(e.target.value);
+                onSearch(e.target.value);
+              }}
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {searchValue && suggestions.length > 0 && (
@@ -42,7 +47,8 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
                       key={index}
                       className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
                       onClick={() => {
-                        handleInput(suggestion);
+                        setSearchValue(suggestion);
+                        onSearch(suggestion);
                       }}
                     >
                       {suggestion}
@@ -71,12 +77,10 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
             >
               ×
             </button>
-            <LoginFormSection />
+            <LoginFormSection onSuccess={handleLoginSuccess} /> {/* ✅ pass callback */}
           </div>
         </div>
       )}
     </>
   );
 }
-
-
