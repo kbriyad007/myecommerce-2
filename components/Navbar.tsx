@@ -2,10 +2,10 @@
 
 import { Mail, Lock, UserPlus, LogIn } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import { useRouter } from "next/navigation"; // ✅ import router
 
-// Setup Supabase client
+// Initialize Supabase
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -17,10 +17,9 @@ export default function LoginFormSection() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const router = useRouter();
 
-  const router = useRouter(); // ✅ setup router
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
@@ -30,19 +29,19 @@ export default function LoginFormSection() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         setMessage("✅ Logged in successfully!");
-        router.push("/admin"); // ✅ redirect after login
+        router.push("/admin"); // Redirect on successful login
       } else {
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL + "/auth/callback",
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
           },
         });
         if (error) throw error;
         setMessage("✅ Registered successfully! Check your email to confirm.");
       }
-    } catch (err: unknown) {
+    } catch (err) {
       if (err instanceof Error) {
         setMessage(`❌ ${err.message}`);
       } else {
@@ -55,7 +54,7 @@ export default function LoginFormSection() {
 
   return (
     <div className="w-[380px] mx-auto mt-12 bg-white rounded-md shadow-lg p-6 font-sans">
-      {/* Icon and Title */}
+      {/* Header */}
       <div className="flex flex-col items-center">
         <div className="bg-blue-100 text-blue-600 rounded-full p-2 mb-2">
           {authMode === "login" ? <LogIn className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
@@ -67,7 +66,7 @@ export default function LoginFormSection() {
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <div className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2">
+        <label className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2">
           <Mail className="w-4 h-4 text-gray-400" />
           <input
             type="email"
@@ -77,9 +76,9 @@ export default function LoginFormSection() {
             onChange={(e) => setEmail(e.target.value)}
             className="w-full bg-transparent outline-none text-sm"
           />
-        </div>
+        </label>
 
-        <div className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2">
+        <label className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2">
           <Lock className="w-4 h-4 text-gray-400" />
           <input
             type="password"
@@ -89,7 +88,7 @@ export default function LoginFormSection() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full bg-transparent outline-none text-sm"
           />
-        </div>
+        </label>
 
         <button
           type="submit"
@@ -112,13 +111,13 @@ export default function LoginFormSection() {
         <hr className="flex-grow border-gray-200" />
       </div>
 
-      {/* Toggle Auth Mode */}
+      {/* Toggle Mode */}
       <p className="text-center text-sm text-gray-500">
         {authMode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
         <button
           type="button"
-          className="text-blue-600 font-medium hover:underline"
           onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}
+          className="text-blue-600 font-medium hover:underline"
         >
           {authMode === "login" ? "Register" : "Login"}
         </button>
