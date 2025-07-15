@@ -152,11 +152,11 @@ export default function Page() {
         <div
           className="
             grid
-            grid-cols-1
+            grid-cols-2
             sm:grid-cols-2
             md:grid-cols-3
             lg:grid-cols-4
-            gap-8
+            gap-6
           "
         >
           {filteredProducts.map((product, i) => {
@@ -170,12 +170,6 @@ export default function Page() {
                     bg-white
                     rounded-xl
                     shadow-lg
-                    hover:shadow-2xl
-                    transform
-                    hover:-translate-y-1
-                    transition
-                    duration-300
-                    ease-in-out
                     cursor-pointer
                     flex
                     flex-col
@@ -192,7 +186,7 @@ export default function Page() {
                         src={imageUrl}
                         alt={product.name || "Product image"}
                         fill
-                        className="object-cover transition duration-500 group-hover:scale-105"
+                        className="object-cover"
                         unoptimized
                       />
                     ) : (
@@ -228,14 +222,8 @@ export default function Page() {
                           font-semibold
                           text-white
                           shadow-md
-                          transition
-                          duration-300
-                          ease-in-out
-                          ${
-                            addedToCartIndex === i
-                              ? "bg-green-600 hover:bg-green-700"
-                              : "bg-blue-600 hover:bg-blue-700"
-                          }
+                          bg-blue-600
+                          hover:bg-blue-700
                           focus:outline-none
                           focus:ring-2
                           focus:ring-offset-2
@@ -259,7 +247,7 @@ export default function Page() {
           Why Shop With Us?
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-          <div className="p-6 bg-white rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
+          <div className="p-6 bg-white rounded-xl shadow-lg transition duration-300">
             <h3 className="text-xl font-semibold mb-3 text-blue-600">
               Fast Shipping
             </h3>
@@ -267,7 +255,7 @@ export default function Page() {
               We ensure quick delivery to your doorstep, always on time.
             </p>
           </div>
-          <div className="p-6 bg-white rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
+          <div className="p-6 bg-white rounded-xl shadow-lg transition duration-300">
             <h3 className="text-xl font-semibold mb-3 text-blue-600">
               Quality Products
             </h3>
@@ -275,7 +263,7 @@ export default function Page() {
               All our products are carefully selected to ensure the best quality.
             </p>
           </div>
-          <div className="p-6 bg-white rounded-xl shadow-lg hover:shadow-2xl transition duration-300">
+          <div className="p-6 bg-white rounded-xl shadow-lg transition duration-300">
             <h3 className="text-xl font-semibold mb-3 text-blue-600">
               24/7 Support
             </h3>
