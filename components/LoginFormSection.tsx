@@ -42,8 +42,12 @@ export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
         if (error) throw error;
         setMessage("✅ Registered successfully! Check your email to confirm.");
       }
-    } catch (err: any) {
-      setMessage("❌ " + err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setMessage("❌ " + err.message);
+      } else {
+        setMessage("❌ An unknown error occurred.");
+      }
     } finally {
       setLoading(false);
     }
