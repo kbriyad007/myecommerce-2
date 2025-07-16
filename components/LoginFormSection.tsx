@@ -11,7 +11,7 @@ const supabase = createClient(
 
 interface LoginFormSectionProps {
   onSuccess?: () => void;
-  onClose?: () => void; // <-- New optional close handler
+  onClose?: () => void;
 }
 
 export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectionProps) {
@@ -63,8 +63,8 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
   };
 
   return (
-    <div className="relative w-full max-w-sm mx-auto mt-10 bg-white rounded-lg p-6 font-sans text-center shadow-lg">
-      {/* Close Icon */}
+    <div className="relative w-full max-w-sm bg-white rounded-md p-6 font-sans text-center shadow-md border border-gray-200">
+      {/* Close Icon (functional) */}
       <button
         onClick={onClose}
         className="absolute top-3 right-3 text-gray-400 hover:text-black focus:outline-none"
@@ -72,10 +72,11 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
         <X className="w-5 h-5" />
       </button>
 
+      {/* Title */}
       <h1 className="text-4xl font-bold font-serif mb-4 tracking-wider">MyApp</h1>
       <p className="text-gray-500 text-sm mb-4">Sign in to see updates from your account</p>
 
-      {/* Facebook Login Button */}
+      {/* Facebook OAuth */}
       <button
         onClick={() => handleOAuth("facebook")}
         className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 text-sm font-medium mb-4 flex items-center justify-center gap-2"
@@ -122,10 +123,12 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
         </button>
       </form>
 
+      {/* Message */}
       {message && (
         <p className="mt-3 text-sm text-gray-600 whitespace-pre-wrap">{message}</p>
       )}
 
+      {/* Info */}
       <div className="mt-4 text-xs text-gray-500 px-1 leading-tight">
         People who use our service may have uploaded your contact info.{" "}
         <a href="#" className="text-blue-500 hover:underline">
@@ -133,6 +136,7 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
         </a>
       </div>
 
+      {/* Terms */}
       <p className="text-xs text-gray-500 mt-3">
         By signing up, you agree to our{" "}
         <a href="#" className="text-blue-500 hover:underline">Terms</a>,{" "}
@@ -140,7 +144,7 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
         <a href="#" className="text-blue-500 hover:underline">Cookies Policy</a>.
       </p>
 
-      {/* Footer toggle */}
+      {/* Auth Mode Switch */}
       <p className="text-sm text-gray-600 mt-5">
         {authMode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
         <button
