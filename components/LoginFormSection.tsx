@@ -1,6 +1,14 @@
 "use client";
 
-import { Loader2, Facebook, X } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  UserPlus,
+  LogIn,
+  Loader2,
+  Facebook,
+  MailCheck,
+} from "lucide-react";
 import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
@@ -11,10 +19,9 @@ const supabase = createClient(
 
 interface LoginFormSectionProps {
   onSuccess?: () => void;
-  onClose?: () => void;
 }
 
-export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectionProps) {
+export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -63,96 +70,95 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
   };
 
   return (
-    <div className="relative w-full max-w-sm bg-white rounded-md p-6 font-sans text-center shadow-md border border-gray-200">
-      {/* Close Icon (functional) */}
-      <button
-        onClick={onClose}
-        className="absolute top-3 right-3 text-gray-400 hover:text-black focus:outline-none"
-      >
-        <X className="w-5 h-5" />
-      </button>
-
-      {/* Title */}
-      <h1 className="text-4xl font-bold font-serif mb-4 tracking-wider">MyApp</h1>
-      <p className="text-gray-500 text-sm mb-4">Sign in to see updates from your account</p>
-
-      {/* Facebook OAuth */}
-      <button
-        onClick={() => handleOAuth("facebook")}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 text-sm font-medium mb-4 flex items-center justify-center gap-2"
-      >
-        <Facebook className="w-4 h-4" />
-        Log in with Facebook
-      </button>
-
-      {/* Divider */}
-      <div className="flex items-center my-4">
-        <hr className="flex-grow border-gray-300" />
-        <span className="mx-2 text-gray-400 text-xs uppercase tracking-wide">or</span>
-        <hr className="flex-grow border-gray-300" />
+    <div className="w-[320px] min-h-[540px] mx-auto mt-12 bg-white rounded-lg shadow-md p-5 font-sans border border-gray-200">
+      <div className="flex flex-col items-center mb-5">
+        <div className="bg-blue-100 text-blue-600 rounded-full p-2">
+          {authMode === "login" ? (
+            <LogIn className="w-5 h-5" />
+          ) : (
+            <UserPlus className="w-5 h-5" />
+          )}
+        </div>
+        <h2 className="text-xl font-semibold text-gray-800 mt-2">
+          {authMode === "login" ? "Login" : "Register"}
+        </h2>
       </div>
 
-      {/* Email / Password Form */}
       <form onSubmit={handleSubmit} className="space-y-3">
-        <input
-          type="email"
-          placeholder="Mobile Number or Email"
-          value={email}
-          required
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          autoComplete="username"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          required
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          autoComplete={authMode === "login" ? "current-password" : "new-password"}
-        />
+        <div className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2 text-sm">
+          <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            required
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full bg-transparent outline-none"
+            autoComplete="username"
+          />
+        </div>
+
+        <div className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2 text-sm">
+          <Lock className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            required
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full bg-transparent outline-none"
+            autoComplete={authMode === "login" ? "current-password" : "new-password"}
+          />
+        </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-md py-2 font-medium text-sm flex justify-center items-center gap-2 disabled:opacity-60"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 font-semibold flex justify-center items-center gap-2 disabled:opacity-60"
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-          {authMode === "login" ? "Log In" : "Register"}
+          {authMode === "login" ? "Login" : "Register"}
         </button>
       </form>
 
-      {/* Message */}
       {message && (
-        <p className="mt-3 text-sm text-gray-600 whitespace-pre-wrap">{message}</p>
+        <p className="mt-3 text-center text-sm text-gray-600 whitespace-pre-wrap">{message}</p>
       )}
 
-      {/* Info */}
-      <div className="mt-4 text-xs text-gray-500 px-1 leading-tight">
-        People who use our service may have uploaded your contact info.{" "}
-        <a href="#" className="text-blue-500 hover:underline">
-          Learn More
-        </a>
+      <div className="flex items-center my-4">
+        <hr className="flex-grow border-gray-200" />
+        <span className="mx-2 text-gray-400 text-xs uppercase tracking-widest">or</span>
+        <hr className="flex-grow border-gray-200" />
       </div>
 
-      {/* Terms */}
-      <p className="text-xs text-gray-500 mt-3">
-        By signing up, you agree to our{" "}
-        <a href="#" className="text-blue-500 hover:underline">Terms</a>,{" "}
-        <a href="#" className="text-blue-500 hover:underline">Privacy Policy</a> and{" "}
-        <a href="#" className="text-blue-500 hover:underline">Cookies Policy</a>.
-      </p>
+      <div className="space-y-2">
+        <button
+          onClick={() => handleOAuth("google")}
+          className="w-full border border-gray-300 rounded-md py-2 text-sm font-semibold hover:bg-gray-50 flex items-center justify-center gap-2"
+          aria-label="Continue with Google"
+        >
+          <MailCheck className="w-4 h-4 text-red-600" />
+          Google
+        </button>
 
-      {/* Auth Mode Switch */}
-      <p className="text-sm text-gray-600 mt-5">
+        <button
+          onClick={() => handleOAuth("facebook")}
+          className="w-full border border-gray-300 rounded-md py-2 text-sm font-semibold hover:bg-gray-50 flex items-center justify-center gap-2"
+          aria-label="Continue with Facebook"
+        >
+          <Facebook className="w-4 h-4 text-blue-600" />
+          Facebook
+        </button>
+      </div>
+
+      <p className="text-center text-sm text-gray-500 mt-5">
         {authMode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
         <button
           type="button"
-          className="text-blue-600 font-medium hover:underline"
+          className="text-blue-600 font-semibold hover:underline"
           onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}
         >
-          {authMode === "login" ? "Sign up" : "Log in"}
+          {authMode === "login" ? "Register" : "Login"}
         </button>
       </p>
     </div>
