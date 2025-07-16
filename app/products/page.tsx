@@ -7,6 +7,7 @@ import { useCart } from "@/context/CartContext";
 import CartMenu from "@/app/components/CartMenu";
 import HeroSection from "@/components/HeroSection";
 import Navbar from "@/components/Navbar";
+import LoginFormSection from "@/components/LoginFormSection"; // ✅ Added
 
 interface MyProduct {
   component: string;
@@ -42,6 +43,7 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [addedToCartIndex, setAddedToCartIndex] = useState<number | null>(null);
+  const [showForm, setShowForm] = useState(false); // ✅ Login popup state
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -141,7 +143,16 @@ export default function Page() {
       <Navbar
         onSearch={setSearchTerm}
         suggestions={products.map((p) => p.name || "")}
+        onLoginClick={() => setShowForm(true)} // ✅ Trigger login popup
       />
+
+      {/* ✅ Login popup overlay */}
+      {showForm && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center px-4">
+          <LoginFormSection onClose={() => setShowForm(false)} />
+        </div>
+      )}
+
       <HeroSection />
 
       <section className="max-w-7xl mx-auto px-2 sm:px-4 py-10">
@@ -155,9 +166,7 @@ export default function Page() {
             const imageUrl = getImageUrl(product.image, product._version);
             return (
               <Link key={slug} href={`/products/${slug}`} passHref>
-                <article
-                  className="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden"
-                >
+                <article className="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden">
                   <div className="relative w-full pt-[75%] bg-gray-100">
                     {imageUrl ? (
                       <Image
