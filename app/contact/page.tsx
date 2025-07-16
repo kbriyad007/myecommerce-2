@@ -32,7 +32,7 @@ export default function ContactPage() {
 
         {submitted ? (
           <div className="text-green-600 font-medium text-center">
-            ✅ Thank you for your message! We'll get back to you soon.
+            ✅ Thank you for your message! We&apos;ll get back to you soon.
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
