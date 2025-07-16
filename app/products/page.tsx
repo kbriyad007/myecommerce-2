@@ -148,7 +148,10 @@ export default function Page() {
       {/* Login Button */}
       <div className="flex justify-end max-w-7xl mx-auto px-4 mt-4">
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => {
+            console.log("Opening login form");
+            setShowForm(true);
+          }}
           className="text-sm text-blue-600 border border-blue-600 px-4 py-1 rounded hover:bg-blue-50"
         >
           Login
@@ -157,9 +160,25 @@ export default function Page() {
 
       {/* Login Form Popup */}
       {showForm && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center px-4">
-          {/* Pass onClose prop to hide the login form */}
-          <LoginFormSection onClose={() => setShowForm(false)} />
+        <div
+          className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center px-4"
+          onClick={() => {
+            console.log("Background clicked - closing login form");
+            setShowForm(false);
+          }}
+        >
+          {/* Stop click propagation inside modal so background click doesn't close */}
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-[320px]"
+          >
+            <LoginFormSection
+              onClose={() => {
+                console.log("Close button clicked inside LoginFormSection");
+                setShowForm(false);
+              }}
+            />
+          </div>
         </div>
       )}
 
