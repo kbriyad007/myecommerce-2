@@ -2,223 +2,217 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { useCart } from "@/context/CartContext";
+import CartMenu from "@/app/components/CartMenu";
+import HeroSection from "@/components/HeroSection";
+import Navbar from "@/components/Navbar";
 
 interface MyProduct {
   component: string;
   name: string;
   description: string;
-  image?: { filename: string };
+  image?: { filename: string } | string;
   price?: number | string;
+  Price?: number | string;
+  slug?: string;
+  _version?: number;
+}
+
+interface StoryblokStory {
+  slug: string;
+  content: MyProduct;
+  _version?: number;
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-")
+    .replace(/^-+/, "")
+    .replace(/-+$/, "");
 }
 
 export default function Page() {
   const [products, setProducts] = useState<MyProduct[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<MyProduct[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [addedToCartIndex, setAddedToCartIndex] = useState<number | null>(null);
+  const { addToCart } = useCart();
 
   useEffect(() => {
-    const slug = "product";
     const token = process.env.NEXT_PUBLIC_STORYBLOK_TOKEN;
-
     if (!token) {
-      setErrorMsg("❌ Storyblok token not found in environment variables.");
+      setErrorMsg("❌ Storyblok token not found.");
       setLoading(false);
       return;
     }
-
-    const url = `https://api.storyblok.com/v2/cdn/stories/${slug}?version=draft&token=${token}`;
+    const url = `https://api.storyblok.com/v2/cdn/stories?starts_with=product&version=draft&token=${token}`;
     fetch(url)
       .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
         return res.json();
       })
       .then((data) => {
-        const body = data.story?.content?.body;
-        if (!body || !Array.isArray(body) || body.length === 0) {
-          setErrorMsg("❌ No product blocks found in content.body.");
-          return;
-        }
-        setProducts(body as MyProduct[]);
+        const stories: StoryblokStory[] = data.stories || [];
+        const productList: MyProduct[] = stories.map((story) => ({
+          ...story.content,
+          price: story.content.Price,
+          slug: story.slug,
+          _version: story._version,
+        }));
+        setProducts(productList);
+        setFilteredProducts(productList);
       })
       .catch((err) => setErrorMsg(err.message))
       .finally(() => setLoading(false));
   }, []);
 
-  const fallbackImage =
-    "https://a.storyblok.com/f/285405591159825/4032x2688/ca2804d8c3/image-couple-relaxing-tropical-beach-sunset-hotel-vacation-tourism.jpg";
+  useEffect(() => {
+    const term = searchTerm.toLowerCase();
+    const filtered = products.filter(
+      (p) =>
+        p.name?.toLowerCase().includes(term) ||
+        p.description?.toLowerCase().includes(term)
+    );
+    setFilteredProducts(filtered);
+  }, [searchTerm, products]);
 
-  const handleAddToCart = (index: number) => {
+  const handleAddToCart = (product: MyProduct, index: number) => {
+    const price =
+      typeof product.Price === "string"
+        ? parseFloat(product.Price)
+        : product.Price;
+    if (price === undefined || isNaN(price)) {
+      alert("Invalid price");
+      return;
+    }
+    addToCart({
+      name: product.name || "Unnamed Product",
+      price,
+      quantity: 1,
+    });
     setAddedToCartIndex(index);
-    setTimeout(() => setAddedToCartIndex(null), 2000);
+    setTimeout(() => setAddedToCartIndex(null), 1500);
   };
 
-  if (loading || errorMsg || products.length === 0) {
+  const getImageUrl = (
+    image: MyProduct["image"],
+    version?: number
+  ): string | null => {
+    if (typeof image === "string") {
+      return image.startsWith("//") ? `https:${image}` : image;
+    } else if (image?.filename) {
+      return `https://a.storyblok.com${image.filename}?v=${version || "1"}`;
+    }
+    return null;
+  };
+
+  if (loading) {
     return (
-      <div className="status-message">
-        {errorMsg
-          ? `❌ Error: ${errorMsg}`
-          : products.length === 0
-          ? "No products available."
-          : "Loading products..."}
-        <style jsx>{`
-          .status-message {
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1rem;
-            font-family: "Inter", sans-serif;
-            background-color: #f3f4f6;
-            color: ${errorMsg ? "#dc2626" : "#6b7280"};
-            padding: 1rem;
-            text-align: center;
-          }
-        `}</style>
+      <div className="min-h-screen flex items-center justify-center text-gray-600 text-lg font-semibold px-4">
+        Loading products...
+      </div>
+    );
+  }
+
+  if (errorMsg) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-600 text-lg font-semibold px-4">
+        ❌ {errorMsg}
+      </div>
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-600 text-lg font-semibold px-4">
+        No products found.
       </div>
     );
   }
 
   return (
-    <>
-      <main className="product-grid">
-        {products.map((product, i) => (
-          <article key={i} className="card" tabIndex={0}>
-            <div className="image-wrapper">
-              <Image
-                src={product.image?.filename || fallbackImage}
-                alt={product.name || "Product image"}
-                fill
-                style={{ objectFit: "cover" }}
-                quality={85}
-                priority={i === 0}
-                draggable={false}
-                className="product-img"
-              />
-            </div>
+    <main className="bg-gray-50 min-h-screen font-sans">
+      <Navbar
+        onSearch={setSearchTerm}
+        suggestions={products.map((p) => p.name || "")}
+      />
+      <HeroSection />
 
-            <div className="card-body">
-              <h2 className="card-title">{product.name || "Unnamed Product"}</h2>
-              <p className="card-description">{product.description}</p>
-              <p className="card-price">
-                Price: <span>${product.price ?? "N/A"}</span>
-              </p>
+      <section className="max-w-7xl mx-auto px-2 sm:px-4 py-10">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
+          ✨ Featured Products
+        </h1>
 
-              <button
-                onClick={() => handleAddToCart(i)}
-                className={`btn-add-cart ${addedToCartIndex === i ? "added" : ""}`}
-              >
-                🛒 Add to Cart
-              </button>
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {filteredProducts.map((product, i) => {
+            const slug = product.slug || slugify(product.name || `product-${i}`);
+            const imageUrl = getImageUrl(product.image, product._version);
+            return (
+              <Link key={slug} href={`/products/${slug}`} passHref>
+                <article
+                  className="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden"
+                >
+                  <div className="relative w-full pt-[75%] bg-gray-100">
+                    {imageUrl ? (
+                      <Image
+                        src={imageUrl}
+                        alt={product.name || "Product image"}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
+                        No image
+                      </div>
+                    )}
+                  </div>
 
-              {addedToCartIndex === i && (
-                <p className="added-msg">✔️ Added to cart</p>
-              )}
-            </div>
-          </article>
-        ))}
-      </main>
+                  <div className="p-3 flex flex-col h-full justify-between">
+                    <div>
+                      <h2 className="font-medium text-gray-900 text-base truncate">
+                        {product.name || "Unnamed Product"}
+                      </h2>
+                      <p className="text-gray-500 text-sm mt-1 line-clamp-2">
+                        {product.description}
+                      </p>
+                    </div>
 
-      <style jsx>{`
-        .product-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 0.8rem;
-          padding: 1rem;
-          background-color: #f3f4f6;
-          font-family: "Inter", sans-serif;
-          max-width: 1400px;
-          margin: 0 auto;
-        }
+                    <div className="mt-2">
+                      <p className="text-blue-600 font-semibold text-sm mb-1">
+                        ${product.price ?? "N/A"}
+                      </p>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleAddToCart(product, i);
+                        }}
+                        className={`w-full py-2 text-sm rounded-lg font-medium text-white ${
+                          addedToCartIndex === i
+                            ? "bg-green-600"
+                            : "bg-blue-600 hover:bg-blue-700"
+                        }`}
+                      >
+                        {addedToCartIndex === i ? "✔ Added" : "🛒 Add to Cart"}
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
 
-        @media (min-width: 768px) {
-          .product-grid {
-            grid-template-columns: repeat(3, 1fr);
-          }
-        }
-
-        @media (min-width: 1024px) {
-          .product-grid {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-          }
-        }
-
-        .card {
-          background-color: #ffffff;
-          border-radius: 10px;
-          overflow: hidden;
-          border: 1px solid #e5e7eb;
-          display: flex;
-          flex-direction: column;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-          transition: transform 0.15s ease;
-        }
-
-        .card:hover {
-          transform: translateY(-2px);
-        }
-
-        .image-wrapper {
-          position: relative;
-          width: 100%;
-          aspect-ratio: 4 / 3;
-        }
-
-        .card-body {
-          padding: 0.75rem;
-          display: flex;
-          flex-direction: column;
-          gap: 0.4rem;
-        }
-
-        .card-title {
-          font-size: 0.95rem;
-          font-weight: 600;
-          color: #1f2937;
-        }
-
-        .card-description {
-          font-size: 0.75rem;
-          color: #6b7280;
-          flex-grow: 1;
-        }
-
-        .card-price {
-          font-size: 0.8rem;
-          color: #4b5563;
-        }
-
-        .card-price span {
-          font-weight: 600;
-          color: #111827;
-        }
-
-        .btn-add-cart {
-          background-color: #1f2937;
-          color: white;
-          padding: 0.4rem;
-          border-radius: 6px;
-          font-size: 0.75rem;
-          font-weight: 500;
-          border: none;
-          cursor: pointer;
-        }
-
-        .btn-add-cart:hover {
-          background-color: #374151;
-        }
-
-        .btn-add-cart.added {
-          background-color: #16a34a;
-        }
-
-        .added-msg {
-          font-size: 0.7rem;
-          color: #16a34a;
-          text-align: center;
-        }
-      `}</style>
-    </>
+      <div className="px-4 mt-10 max-w-7xl mx-auto">
+        <CartMenu />
+      </div>
+    </main>
   );
 }
