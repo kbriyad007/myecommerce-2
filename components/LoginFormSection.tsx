@@ -19,7 +19,7 @@ const supabase = createClient(
 
 interface LoginFormSectionProps {
   onSuccess?: () => void;
-  onClose?: () => void;  // Added onClose prop
+  onClose?: () => void;
 }
 
 export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectionProps) {
@@ -71,33 +71,33 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
   };
 
   return (
-    <div className="relative w-[320px] min-h-[540px] mx-auto mt-12 bg-white rounded-lg shadow-md p-5 font-sans border border-gray-200">
+    <div className="relative w-[280px] min-h-[480px] mx-auto mt-10 bg-white rounded-lg shadow-md p-3 font-sans border border-gray-200">
       
       {/* Close button */}
       <button
         onClick={() => onClose && onClose()}
         aria-label="Close login form"
-        className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl font-bold leading-none"
+        className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold leading-none"
       >
         ×
       </button>
 
-      <div className="flex flex-col items-center mb-5">
-        <div className="bg-blue-100 text-blue-600 rounded-full p-2">
+      <div className="flex flex-col items-center mb-4">
+        <div className="bg-blue-100 text-blue-600 rounded-full p-1.5">
           {authMode === "login" ? (
-            <LogIn className="w-5 h-5" />
+            <LogIn className="w-4 h-4" />
           ) : (
-            <UserPlus className="w-5 h-5" />
+            <UserPlus className="w-4 h-4" />
           )}
         </div>
-        <h2 className="text-xl font-semibold text-gray-800 mt-2">
+        <h2 className="text-lg font-semibold text-gray-800 mt-1">
           {authMode === "login" ? "Login" : "Register"}
         </h2>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2 text-sm">
-          <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
+      <form onSubmit={handleSubmit} className="space-y-2">
+        <div className="flex items-center gap-2 border border-gray-300 rounded-md px-2 py-1.5 text-sm">
+          <Mail className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
           <input
             type="email"
             placeholder="Email"
@@ -109,8 +109,8 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
           />
         </div>
 
-        <div className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2 text-sm">
-          <Lock className="w-4 h-4 text-gray-400 flex-shrink-0" />
+        <div className="flex items-center gap-2 border border-gray-300 rounded-md px-2 py-1.5 text-sm">
+          <Lock className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
           <input
             type="password"
             placeholder="Password"
@@ -125,7 +125,7 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 font-semibold flex justify-center items-center gap-2 disabled:opacity-60"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-md py-1.5 font-semibold flex justify-center items-center gap-2 disabled:opacity-60 text-sm"
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
           {authMode === "login" ? "Login" : "Register"}
@@ -133,36 +133,36 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
       </form>
 
       {message && (
-        <p className="mt-3 text-center text-sm text-gray-600 whitespace-pre-wrap">{message}</p>
+        <p className="mt-2 text-center text-xs text-gray-600 whitespace-pre-wrap">{message}</p>
       )}
 
-      <div className="flex items-center my-4">
+      <div className="flex items-center my-3">
         <hr className="flex-grow border-gray-200" />
-        <span className="mx-2 text-gray-400 text-xs uppercase tracking-widest">or</span>
+        <span className="mx-2 text-gray-400 text-[10px] uppercase tracking-widest">or</span>
         <hr className="flex-grow border-gray-200" />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <button
           onClick={() => handleOAuth("google")}
-          className="w-full border border-gray-300 rounded-md py-2 text-sm font-semibold hover:bg-gray-50 flex items-center justify-center gap-2"
+          className="w-full border border-gray-300 rounded-md py-1.5 text-xs font-semibold hover:bg-gray-50 flex items-center justify-center gap-2"
           aria-label="Continue with Google"
         >
-          <MailCheck className="w-4 h-4 text-red-600" />
+          <MailCheck className="w-3.5 h-3.5 text-red-600" />
           Google
         </button>
 
         <button
           onClick={() => handleOAuth("facebook")}
-          className="w-full border border-gray-300 rounded-md py-2 text-sm font-semibold hover:bg-gray-50 flex items-center justify-center gap-2"
+          className="w-full border border-gray-300 rounded-md py-1.5 text-xs font-semibold hover:bg-gray-50 flex items-center justify-center gap-2"
           aria-label="Continue with Facebook"
         >
-          <Facebook className="w-4 h-4 text-blue-600" />
+          <Facebook className="w-3.5 h-3.5 text-blue-600" />
           Facebook
         </button>
       </div>
 
-      <p className="text-center text-sm text-gray-500 mt-5">
+      <p className="text-center text-xs text-gray-500 mt-4">
         {authMode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
         <button
           type="button"
