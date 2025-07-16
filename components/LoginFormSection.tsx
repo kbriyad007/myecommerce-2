@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Mail,
-  Lock,
-  UserPlus,
-  LogIn,
-  Loader2,
-  Facebook,
-  MailCheck,
-} from "lucide-react";
+import { Loader2, Facebook } from "lucide-react";
 import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
