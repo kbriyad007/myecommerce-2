@@ -19,6 +19,7 @@ const supabase = createClient(
 
 interface LoginFormSectionProps {
   onSuccess?: () => void;
+  onClose?: () => void; // ✅ Add this line
 }
 
 export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
