@@ -7,7 +7,6 @@ import { useCart } from "@/context/CartContext";
 import CartMenu from "@/app/components/CartMenu";
 import HeroSection from "@/components/HeroSection";
 import Navbar from "@/components/Navbar";
-import LoginFormSection from "@/components/LoginFormSection";
 
 interface MyProduct {
   component: string;
@@ -43,7 +42,6 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [addedToCartIndex, setAddedToCartIndex] = useState<number | null>(null);
-  const [showForm, setShowForm] = useState(false); // Controls visibility of login form
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -84,7 +82,6 @@ export default function Page() {
     setFilteredProducts(filtered);
   }, [searchTerm, products]);
 
-  // FIXED: Ensure this is declared correctly with two params
   const handleAddToCart = (product: MyProduct, index: number) => {
     const price =
       typeof product.Price === "string"
@@ -145,25 +142,6 @@ export default function Page() {
         onSearch={setSearchTerm}
         suggestions={products.map((p) => p.name || "")}
       />
-
-      {/* Login Button */}
-      <div className="flex justify-end max-w-7xl mx-auto px-4 mt-4">
-        <button
-          onClick={() => setShowForm(true)}
-          className="text-sm text-blue-600 border border-blue-600 px-4 py-1 rounded hover:bg-blue-50"
-        >
-          Login
-        </button>
-      </div>
-
-      {/* Login Form Popup */}
-      {showForm && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center px-4">
-          {/* Pass onClose prop to hide the login form */}
-          <LoginFormSection onClose={() => setShowForm(false)} />
-        </div>
-      )}
-
       <HeroSection />
 
       <section className="max-w-7xl mx-auto px-2 sm:px-4 py-10">
@@ -177,7 +155,9 @@ export default function Page() {
             const imageUrl = getImageUrl(product.image, product._version);
             return (
               <Link key={slug} href={`/products/${slug}`} passHref>
-                <article className="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden">
+                <article
+                  className="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden"
+                >
                   <div className="relative w-full pt-[75%] bg-gray-100">
                     {imageUrl ? (
                       <Image
