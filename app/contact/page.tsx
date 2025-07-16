@@ -5,7 +5,7 @@ import { Mail, MapPin, Phone, Send, CheckCircle, User } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export default function ContactPage() {
-  const [searchTerm, setSearchTerm] = useState("");
+  // Dummy suggestions for Navbar search (required props)
   const dummySuggestions = ["Modern Shop", "Product A", "Product B", "Contact"];
 
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -26,7 +26,8 @@ export default function ContactPage() {
 
   return (
     <>
-      <Navbar onSearch={setSearchTerm} suggestions={dummySuggestions} />
+      {/* Navbar with dummy search handler and suggestions */}
+      <Navbar onSearch={() => {}} suggestions={dummySuggestions} />
 
       <main className="min-h-screen bg-gray-50 pt-24 pb-16 px-4">
         <section className="max-w-6xl mx-auto">
@@ -35,8 +36,7 @@ export default function ContactPage() {
               Contact Our Team
             </h1>
             <p className="text-gray-600 text-sm sm:text-base max-w-2xl mx-auto">
-              Let&apos;s talk! Whether you have questions, ideas, or feedback —
-              we&apos;re here to help you.
+              Let&apos;s talk! Whether you have questions, ideas, or feedback — we&apos;re here to help you.
             </p>
           </div>
 
@@ -63,7 +63,9 @@ export default function ContactPage() {
               <div className="flex items-start gap-4">
                 <Phone className="text-blue-600 w-5 h-5 mt-1" />
                 <div>
-                  <h4 className="font-semibold text-base text-gray-800">Call Us</h4>
+                  <h4 className="font-semibold text-base text-gray-800">
+                    Call Us
+                  </h4>
                   <p className="text-sm">+880 1234 567890</p>
                 </div>
               </div>
