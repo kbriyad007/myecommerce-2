@@ -70,7 +70,7 @@ export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
   };
 
   return (
-    <div className="w-[360px] mx-auto mt-10 bg-white rounded-lg shadow-md p-5 font-sans border border-gray-200">
+    <div className="w-[320px] min-h-[540px] mx-auto mt-12 bg-white rounded-lg shadow-md p-5 font-sans border border-gray-200">
       <div className="flex flex-col items-center mb-5">
         <div className="bg-blue-100 text-blue-600 rounded-full p-2">
           {authMode === "login" ? (
