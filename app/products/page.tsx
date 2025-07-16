@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
@@ -43,10 +43,12 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [addedToCartIndex, setAddedToCartIndex] = useState<number | null>(null);
-  const [showForm, setShowForm] = useState(false); // Controls visibility of login form
+  const [showForm, setShowForm] = useState(false);
   const { addToCart } = useCart();
 
-  useEffect(() => {
+  // Fetch products from Storyblok
+  // NOTE: Replace token with your actual Storyblok token
+  useState(() => {
     const token = process.env.NEXT_PUBLIC_STORYBLOK_TOKEN;
     if (!token) {
       setErrorMsg("❌ Storyblok token not found.");
@@ -72,9 +74,10 @@ export default function Page() {
       })
       .catch((err) => setErrorMsg(err.message))
       .finally(() => setLoading(false));
-  }, []);
+  });
 
-  useEffect(() => {
+  // Filter products on searchTerm change
+  useState(() => {
     const term = searchTerm.toLowerCase();
     const filtered = products.filter(
       (p) =>
@@ -148,10 +151,7 @@ export default function Page() {
       {/* Login Button */}
       <div className="flex justify-end max-w-7xl mx-auto px-4 mt-4">
         <button
-          onClick={() => {
-            console.log("Opening login form");
-            setShowForm(true);
-          }}
+          onClick={() => setShowForm(true)}
           className="text-sm text-blue-600 border border-blue-600 px-4 py-1 rounded hover:bg-blue-50"
         >
           Login
@@ -160,26 +160,7 @@ export default function Page() {
 
       {/* Login Form Popup */}
       {showForm && (
-        <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center px-4"
-          onClick={() => {
-            console.log("Background clicked - closing login form");
-            setShowForm(false);
-          }}
-        >
-          {/* Stop click propagation inside modal so background click doesn't close */}
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-[320px]"
-          >
-            <LoginFormSection
-              onClose={() => {
-                console.log("Close button clicked inside LoginFormSection");
-                setShowForm(false);
-              }}
-            />
-          </div>
-        </div>
+        <LoginFormSection onClose={() => setShowForm(false)} />
       )}
 
       <HeroSection />
@@ -195,7 +176,7 @@ export default function Page() {
             const imageUrl = getImageUrl(product.image, product._version);
             return (
               <Link key={slug} href={`/products/${slug}`} passHref>
-                <article className="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden">
+                <article className="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden cursor-pointer">
                   <div className="relative w-full pt-[75%] bg-gray-100">
                     {imageUrl ? (
                       <Image
