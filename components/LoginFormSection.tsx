@@ -19,9 +19,10 @@ const supabase = createClient(
 
 interface LoginFormSectionProps {
   onSuccess?: () => void;
+  onClose?: () => void;  // Added onClose prop
 }
 
-export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
+export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectionProps) {
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -70,7 +71,17 @@ export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
   };
 
   return (
-    <div className="w-[320px] min-h-[540px] mx-auto mt-12 bg-white rounded-lg shadow-md p-5 font-sans border border-gray-200">
+    <div className="relative w-[320px] min-h-[540px] mx-auto mt-12 bg-white rounded-lg shadow-md p-5 font-sans border border-gray-200">
+      
+      {/* Close button */}
+      <button
+        onClick={() => onClose && onClose()}
+        aria-label="Close login form"
+        className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl font-bold leading-none"
+      >
+        ×
+      </button>
+
       <div className="flex flex-col items-center mb-5">
         <div className="bg-blue-100 text-blue-600 rounded-full p-2">
           {authMode === "login" ? (
