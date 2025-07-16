@@ -71,7 +71,8 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
   };
 
   return (
-    <div className="relative w-[280px] min-h-[480px] mx-auto mt-10 bg-white rounded-lg shadow-md p-3 font-sans border border-gray-200">
+   <div className="relative min-h-[480px] mx-auto mt-10 bg-white rounded-lg shadow-md p-3 font-sans border border-gray-200">
+
       
       {/* Close button */}
       <button
