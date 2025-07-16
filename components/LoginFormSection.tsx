@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Mail,
   Lock,
@@ -9,7 +10,6 @@ import {
   Facebook,
   MailCheck,
 } from "lucide-react";
-import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -19,7 +19,7 @@ const supabase = createClient(
 
 interface LoginFormSectionProps {
   onSuccess?: () => void;
-  onClose?: () => void;
+  onClose: () => void;
 }
 
 export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectionProps) {
@@ -40,6 +40,7 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
         if (error) throw error;
         setMessage("✅ Logged in successfully!");
         onSuccess?.();
+        onClose(); // close after success
       } else {
         const { error } = await supabase.auth.signUp({
           email,
@@ -71,13 +72,19 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      {/* login box wrapper matches width */}
-      <div className="relative w-full max-w-[320px] bg-white rounded-xl shadow-xl p-5 font-sans border border-gray-100 transition-all">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
+      onClick={onClose} // close modal if clicking outside form box
+    >
+      <div
+        className="relative w-full max-w-[320px] bg-white rounded-xl shadow-xl p-5 font-sans border border-gray-100 transition-all"
+        onClick={(e) => e.stopPropagation()} // prevent close when clicking inside
+      >
         {/* Close Button */}
         <button
-          onClick={() => onClose?.()}
+          onClick={onClose}
           className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-lg font-bold"
+          aria-label="Close login form"
         >
           ×
         </button>
@@ -85,7 +92,11 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
         {/* Header */}
         <div className="flex flex-col items-center mb-4">
           <div className="bg-blue-100 text-blue-600 rounded-full p-2">
-            {authMode === "login" ? <LogIn className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+            {authMode === "login" ? (
+              <LogIn className="w-4 h-4" />
+            ) : (
+              <UserPlus className="w-4 h-4" />
+            )}
           </div>
           <h2 className="text-lg font-semibold text-gray-800 mt-2">
             {authMode === "login" ? "Login" : "Register"}
