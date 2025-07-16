@@ -43,7 +43,7 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [addedToCartIndex, setAddedToCartIndex] = useState<number | null>(null);
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(false); // Controls visibility of login form
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -158,6 +158,7 @@ export default function Page() {
       {/* Login Form Popup */}
       {showForm && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center px-4">
+          {/* Pass onClose prop to hide the login form */}
           <LoginFormSection onClose={() => setShowForm(false)} />
         </div>
       )}
