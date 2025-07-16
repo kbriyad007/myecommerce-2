@@ -143,7 +143,6 @@ export default function Page() {
       <Navbar
         onSearch={setSearchTerm}
         suggestions={products.map((p) => p.name || "")}
-        onLoginClick={() => setShowForm(true)} // ✅ Trigger login popup
       />
 
       {/* ✅ Login popup overlay */}
