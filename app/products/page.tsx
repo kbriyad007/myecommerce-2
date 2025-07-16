@@ -7,7 +7,7 @@ import { useCart } from "@/context/CartContext";
 import CartMenu from "@/app/components/CartMenu";
 import HeroSection from "@/components/HeroSection";
 import Navbar from "@/components/Navbar";
-import LoginFormSection from "@/components/LoginFormSection"; // ✅ Import LoginForm
+import LoginFormSection from "@/components/LoginFormSection";
 
 interface MyProduct {
   component: string;
@@ -43,7 +43,7 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [addedToCartIndex, setAddedToCartIndex] = useState<number | null>(null);
-  const [showForm, setShowForm] = useState(false); // ✅ Show/hide login form
+  const [showForm, setShowForm] = useState(false);
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -145,7 +145,7 @@ export default function Page() {
         suggestions={products.map((p) => p.name || "")}
       />
 
-      {/* ✅ Login Button */}
+      {/* Login Button */}
       <div className="flex justify-end max-w-7xl mx-auto px-4 mt-4">
         <button
           onClick={() => setShowForm(true)}
@@ -155,7 +155,7 @@ export default function Page() {
         </button>
       </div>
 
-      {/* ✅ Login Form Popup */}
+      {/* Login Form Popup */}
       {showForm && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center px-4">
           <LoginFormSection onClose={() => setShowForm(false)} />
