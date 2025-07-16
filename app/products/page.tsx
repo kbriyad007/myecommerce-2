@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
@@ -43,12 +43,10 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [addedToCartIndex, setAddedToCartIndex] = useState<number | null>(null);
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(false); // Controls visibility of login form
   const { addToCart } = useCart();
 
-  // Fetch products from Storyblok
-  // NOTE: Replace token with your actual Storyblok token
-  useState(() => {
+  useEffect(() => {
     const token = process.env.NEXT_PUBLIC_STORYBLOK_TOKEN;
     if (!token) {
       setErrorMsg("❌ Storyblok token not found.");
@@ -74,10 +72,9 @@ export default function Page() {
       })
       .catch((err) => setErrorMsg(err.message))
       .finally(() => setLoading(false));
-  });
+  }, []);
 
-  // Filter products on searchTerm change
-  useState(() => {
+  useEffect(() => {
     const term = searchTerm.toLowerCase();
     const filtered = products.filter(
       (p) =>
@@ -87,6 +84,7 @@ export default function Page() {
     setFilteredProducts(filtered);
   }, [searchTerm, products]);
 
+  // FIXED: Ensure this is declared correctly with two params
   const handleAddToCart = (product: MyProduct, index: number) => {
     const price =
       typeof product.Price === "string"
@@ -160,7 +158,10 @@ export default function Page() {
 
       {/* Login Form Popup */}
       {showForm && (
-        <LoginFormSection onClose={() => setShowForm(false)} />
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center px-4">
+          {/* Pass onClose prop to hide the login form */}
+          <LoginFormSection onClose={() => setShowForm(false)} />
+        </div>
       )}
 
       <HeroSection />
@@ -176,7 +177,7 @@ export default function Page() {
             const imageUrl = getImageUrl(product.image, product._version);
             return (
               <Link key={slug} href={`/products/${slug}`} passHref>
-                <article className="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden cursor-pointer">
+                <article className="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden">
                   <div className="relative w-full pt-[75%] bg-gray-100">
                     {imageUrl ? (
                       <Image
