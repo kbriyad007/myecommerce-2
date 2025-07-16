@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Facebook } from "lucide-react";
+import { Loader2, Facebook, X } from "lucide-react";
 import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
@@ -11,9 +11,10 @@ const supabase = createClient(
 
 interface LoginFormSectionProps {
   onSuccess?: () => void;
+  onClose?: () => void; // <-- New optional close handler
 }
 
-export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
+export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectionProps) {
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -62,7 +63,15 @@ export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
   };
 
   return (
-    <div className="w-[320px] mx-auto mt-10 bg-white border border-gray-300 rounded-md p-6 font-sans text-center shadow-sm">
+    <div className="relative w-full max-w-sm mx-auto mt-10 bg-white rounded-lg p-6 font-sans text-center shadow-lg">
+      {/* Close Icon */}
+      <button
+        onClick={onClose}
+        className="absolute top-3 right-3 text-gray-400 hover:text-black focus:outline-none"
+      >
+        <X className="w-5 h-5" />
+      </button>
+
       <h1 className="text-4xl font-bold font-serif mb-4 tracking-wider">MyApp</h1>
       <p className="text-gray-500 text-sm mb-4">Sign in to see updates from your account</p>
 
@@ -82,7 +91,7 @@ export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
         <hr className="flex-grow border-gray-300" />
       </div>
 
-      {/* Email / Password */}
+      {/* Email / Password Form */}
       <form onSubmit={handleSubmit} className="space-y-3">
         <input
           type="email"
@@ -145,4 +154,3 @@ export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
     </div>
   );
 }
-
