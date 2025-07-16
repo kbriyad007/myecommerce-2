@@ -1,34 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, User, MessageSquare, CheckCircle } from "lucide-react";
+import { Mail, MapPin, Phone, Send, CheckCircle } from "lucide-react";
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
-
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
-    setFormData({ name: "", email: "", message: "" });
-
-    setTimeout(() => setSubmitted(false), 5000); // auto-hide message after 5s
+    setTimeout(() => setSubmitted(false), 4000);
+    setForm({ name: "", email: "", message: "" });
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-r from-blue-50 to-white px-4 py-16 font-sans">
-      <div className="max-w-2xl mx-auto bg-white shadow-xl rounded-2xl p-8 relative">
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 text-center mb-4">📨 Contact Us</h1>
-        <p className="text-center text-gray-600 mb-8">We're here to help. Let's talk!</p>
+    <main className="min-h-screen bg-gray-50 pt-24 px-4 pb-12">
+      <section className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold text-center text-gray-800 mb-4">📞 Contact Us</h1>
+        <p className="text-center text-gray-600 mb-8">
+          Have questions? We&apos;d love to hear from you. Reach out and we&apos;ll get back to you soon!
+        </p>
 
         {submitted && (
           <div className="flex items-center gap-3 text-green-600 bg-green-50 border border-green-200 p-4 rounded-md mb-6">
@@ -37,53 +33,73 @@ export default function ContactPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="relative">
-            <User className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
-            <input
-              name="name"
-              placeholder="Your Name"
-              required
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Contact Info */}
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <MapPin className="text-blue-600 mt-1" />
+              <div>
+                <h4 className="font-semibold text-gray-800">Address</h4>
+                <p className="text-sm text-gray-600">123 Next.js Street, Tech City</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <Phone className="text-blue-600 mt-1" />
+              <div>
+                <h4 className="font-semibold text-gray-800">Phone</h4>
+                <p className="text-sm text-gray-600">+1 (555) 123-4567</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <Mail className="text-blue-600 mt-1" />
+              <div>
+                <h4 className="font-semibold text-gray-800">Email</h4>
+                <p className="text-sm text-gray-600">support@modernshop.com</p>
+              </div>
+            </div>
           </div>
 
-          <div className="relative">
-            <Mail className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+          {/* Contact Form */}
+          <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow space-y-4 border">
+            <input
+              type="text"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              placeholder="Your Name"
+              required
+              className="w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
             <input
               type="email"
               name="email"
+              value={form.email}
+              onChange={handleChange}
               placeholder="Your Email"
               required
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-          </div>
-
-          <div className="relative">
-            <MessageSquare className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
             <textarea
               name="message"
-              placeholder="Your Message"
-              rows={4}
-              required
-              value={formData.message}
+              value={form.message}
               onChange={handleChange}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+              placeholder="Your Message"
+              required
+              rows={4}
+              className="w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white font-medium py-2.5 rounded-lg hover:bg-blue-700 transition"
-          >
-            Send Message
-          </button>
-        </form>
-      </div>
+            <button
+              type="submit"
+              className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition text-sm font-medium"
+            >
+              <Send size={16} />
+              Send Message
+            </button>
+          </form>
+        </div>
+      </section>
     </main>
   );
 }
