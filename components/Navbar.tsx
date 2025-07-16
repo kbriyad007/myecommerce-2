@@ -94,7 +94,6 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
               Login
             </button>
 
-            {/* Hamburger */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className="lg:hidden text-gray-700"
@@ -168,7 +167,10 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
             >
               ×
             </button>
-            <LoginFormSection onSuccess={handleLoginSuccess} />
+            <LoginFormSection
+              onSuccess={handleLoginSuccess}
+              onClose={() => setShowLogin(false)} // ✅ Fix: pass required onClose
+            />
           </div>
         </div>
       )}
