@@ -1,87 +1,94 @@
-// app/contact/page.tsx
 "use client";
 
 import { useState } from "react";
 
 export default function ContactPage() {
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+
   const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Connect to backend/email service (e.g. EmailJS, Resend, etc.)
-    console.log("Submitted:", form);
+    console.log("Form submitted:", formData);
     setSubmitted(true);
+    setFormData({ name: "", email: "", message: "" });
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 px-4 py-20">
-      <section className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-gray-900 text-center mb-6">
-          📩 Contact Us
-        </h1>
+    <main className="min-h-screen bg-gray-50 px-4 py-16">
+      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">📞 Contact Us</h1>
+        <p className="text-gray-600 text-center mb-8">
+          Have questions or feedback? We&apos;d love to hear from you!
+        </p>
 
         {submitted ? (
-          <div className="text-center text-green-600 font-semibold text-lg">
-            ✅ Thank you! We'll get back to you soon.
+          <div className="text-green-600 font-medium text-center">
+            ✅ Thank you for your message! We'll get back to you soon.
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Your Name
+                Name
               </label>
               <input
-                type="text"
+                id="name"
                 name="name"
-                required
-                value={form.name}
+                value={formData.name}
                 onChange={handleChange}
-                className="mt-1 block w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 outline-none"
               />
             </div>
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Your Email
+                Email
               </label>
               <input
-                type="email"
+                id="email"
                 name="email"
-                required
-                value={form.email}
+                type="email"
+                value={formData.email}
                 onChange={handleChange}
-                className="mt-1 block w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 outline-none"
               />
             </div>
 
             <div>
               <label htmlFor="message" className="block text-sm font-medium text-gray-700">
-                Your Message
+                Message
               </label>
               <textarea
+                id="message"
                 name="message"
                 rows={4}
-                required
-                value={form.message}
+                value={formData.message}
                 onChange={handleChange}
-                className="mt-1 block w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+                required
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 outline-none"
+              ></textarea>
             </div>
 
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition transform hover:scale-[1.02] active:scale-95"
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition"
             >
               Send Message
             </button>
           </form>
         )}
-      </section>
+      </div>
     </main>
   );
 }
