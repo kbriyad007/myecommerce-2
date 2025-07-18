@@ -1,140 +1,127 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { Facebook, Lock, Mail } from "lucide-react";
-import FirebaseGoogleLogin from "@/components/FirebaseGoogleLogin";
+import { auth } from "@/lib/firebase.config";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 
 interface LoginFormSectionProps {
   onSuccess?: () => void;
+  onClose?: () => void;
 }
 
-export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
-  const [isLogin, setIsLogin] = useState(true);
+export default function LoginFormSection({
+  onSuccess,
+  onClose,
+}: LoginFormSectionProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const toggleMode = () => {
-    setIsLogin(!isLogin);
-    setMessage("");
-  };
-
-  const handleAuth = async () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setLoading(true);
-    setMessage("");
+    setError(null);
 
     try {
-      let response;
       if (isLogin) {
-        response = await supabase.auth.signInWithPassword({ email, password });
+        await signInWithEmailAndPassword(auth, email, password);
       } else {
-        response = await supabase.auth.signUp({ email, password });
+        await createUserWithEmailAndPassword(auth, email, password);
       }
 
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
-
-      setMessage(`✅ ${isLogin ? "Login" : "Signup"} successful`);
-      onSuccess?.();
-    } catch (error) {
-      const err =
-        error instanceof Error ? error.message : "An unknown error occurred.";
-      setMessage(`❌ ${err}`);
+      if (onSuccess) onSuccess();
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Unknown error occurred";
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOAuth = async (provider: "facebook") => {
-    setLoading(true);
-    setMessage("");
-
+  const handleGoogleLogin = async () => {
+    const provider = new GoogleAuthProvider();
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: { redirectTo: window.location.origin },
-      });
-
-      if (error) throw error;
-    } catch (error) {
-      const err =
-        error instanceof Error ? error.message : "OAuth login failed.";
-      setMessage(`❌ ${err}`);
-    } finally {
-      setLoading(false);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      console.log("✅ Google User:", user);
+      if (onSuccess) onSuccess();
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Google login failed";
+      setError(message);
     }
   };
 
   return (
-    <section className="w-full max-w-md mx-auto px-4 py-6 bg-white rounded-lg shadow">
-      <h2 className="text-2xl font-semibold text-center mb-6">
-        {isLogin ? "Log in to your account" : "Create a new account"}
+    <section className="relative w-full max-w-md mx-auto px-4 py-6 bg-white rounded-lg shadow">
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl"
+          aria-label="Close login form"
+        >
+          &times;
+        </button>
+      )}
+
+      <h2 className="text-2xl font-bold mb-4 text-center">
+        {isLogin ? "Login" : "Create Account"}
       </h2>
 
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 border border-gray-300 rounded px-3 py-2">
-          <Mail className="w-5 h-5 text-gray-400" />
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full outline-none"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          required
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          required
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
 
-        <div className="flex items-center gap-2 border border-gray-300 rounded px-3 py-2">
-          <Lock className="w-5 h-5 text-gray-400" />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full outline-none"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
 
         <button
-          onClick={handleAuth}
+          type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white rounded py-2 font-semibold hover:bg-blue-700 transition"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
         >
-          {loading ? "Processing..." : isLogin ? "Log In" : "Sign Up"}
+          {loading ? "Processing..." : isLogin ? "Login" : "Sign Up"}
         </button>
+      </form>
 
-        <p className="text-sm text-center text-gray-600">
-          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-          <button
-            onClick={toggleMode}
-            className="text-blue-600 hover:underline font-medium"
-          >
-            {isLogin ? "Sign Up" : "Log In"}
-          </button>
-        </p>
-
-        <div className="flex items-center my-4">
-          <hr className="flex-grow border-gray-300" />
-          <span className="mx-4 text-gray-500 text-sm">or</span>
-          <hr className="flex-grow border-gray-300" />
-        </div>
-
-        <FirebaseGoogleLogin onSuccess={onSuccess} />
-
+      <p className="mt-4 text-center text-sm">
+        {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
         <button
-          onClick={() => handleOAuth("facebook")}
-          className="w-full border border-gray-300 rounded-md py-2 text-sm font-semibold hover:bg-gray-50 flex items-center justify-center gap-2"
-          aria-label="Continue with Facebook"
+          onClick={() => setIsLogin(!isLogin)}
+          className="text-blue-600 hover:underline font-medium"
         >
-          <Facebook className="w-4 h-4 text-blue-600" />
-          Facebook
+          {isLogin ? "Sign Up" : "Login"}
         </button>
+      </p>
 
-        {message && (
-          <p className="text-sm text-center mt-2 text-gray-700">{message}</p>
-        )}
+      <div className="my-4 border-t pt-4">
+        <button
+          onClick={handleGoogleLogin}
+          className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition"
+        >
+          Continue with Google
+        </button>
       </div>
     </section>
   );
