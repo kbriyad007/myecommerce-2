@@ -17,7 +17,6 @@ interface MyProduct {
   category?: string;
   image?: { filename: string } | string;
   price?: number | string;
-  Price?: number | string;
   slug?: string;
   _version?: number;
 }
@@ -53,7 +52,7 @@ export default function Page() {
   useEffect(() => {
     const token = process.env.NEXT_PUBLIC_STORYBLOK_TOKEN;
     if (!token) {
-      setErrorMsg("\u274C Storyblok token not found.");
+      setErrorMsg("❌ Storyblok token not found.");
       setLoading(false);
       return;
     }
@@ -71,7 +70,10 @@ export default function Page() {
             typeof story.content.Category === "string"
               ? story.content.Category.toLowerCase()
               : "uncategorized",
-          price: story.content.Price,
+          price:
+            typeof story.content.Price === "string"
+              ? parseFloat(story.content.Price)
+              : story.content.Price,
           slug: story.slug,
           _version: story._version,
         }));
@@ -112,9 +114,9 @@ export default function Page() {
 
   const handleAddToCart = (product: MyProduct, index: number) => {
     const price =
-      typeof product.Price === "string"
-        ? parseFloat(product.Price)
-        : product.Price;
+      typeof product.price === "string"
+        ? parseFloat(product.price)
+        : product.price;
     if (price === undefined || isNaN(price)) {
       alert("Invalid price");
       return;
@@ -151,7 +153,7 @@ export default function Page() {
   if (errorMsg) {
     return (
       <div className="min-h-screen flex items-center justify-center text-red-600 text-lg font-semibold px-4">
-        \u274C {errorMsg}
+        ❌ {errorMsg}
       </div>
     );
   }
@@ -171,9 +173,27 @@ export default function Page() {
         suggestions={products.map((p) => p.name || "")}
       />
 
+      {/* Button to open login form */}
+      <button
+        onClick={() => setShowForm(true)}
+        className="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700 transition"
+      >
+        Login
+      </button>
+
+      {/* Modal for login form */}
       {showForm && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center px-4">
-          <LoginFormSection onClose={() => setShowForm(false)} />
+          <div className="relative bg-white p-6 rounded-lg max-w-md w-full">
+            <button
+              onClick={() => setShowForm(false)}
+              className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-xl font-bold"
+              aria-label="Close login form"
+            >
+              &times;
+            </button>
+            <LoginFormSection />
+          </div>
         </div>
       )}
 
@@ -191,54 +211,58 @@ export default function Page() {
             const slug = product.slug || slugify(product.name || `product-${i}`);
             const imageUrl = getImageUrl(product.image, product._version);
             return (
-              <Link key={slug} href={`/products/${slug}`} passHref>
-                <article className="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden">
-                  <div className="relative w-full pt-[75%] bg-gray-100">
-                    {imageUrl ? (
-                      <Image
-                        src={imageUrl}
-                        alt={product.name || "Product image"}
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
-                        No image
+              <Link key={slug} href={`/products/${slug}`}>
+                <a>
+                  <article className="bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
+                    <div className="relative w-full pt-[75%] bg-gray-100">
+                      {imageUrl ? (
+                        <Image
+                          src={imageUrl}
+                          alt={product.name || "Product image"}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
+                          No image
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-3 flex flex-col h-full justify-between">
+                      <div>
+                        <h2 className="font-medium text-gray-900 text-base truncate">
+                          {product.name || "Unnamed Product"}
+                        </h2>
+                        <p className="text-gray-500 text-sm mt-1 line-clamp-2">
+                          {product.description}
+                        </p>
                       </div>
-                    )}
-                  </div>
 
-                  <div className="p-3 flex flex-col h-full justify-between">
-                    <div>
-                      <h2 className="font-medium text-gray-900 text-base truncate">
-                        {product.name || "Unnamed Product"}
-                      </h2>
-                      <p className="text-gray-500 text-sm mt-1 line-clamp-2">
-                        {product.description}
-                      </p>
+                      <div className="mt-2">
+                        <p className="text-blue-600 font-semibold text-sm mb-1">
+                          ${product.price ?? "N/A"}
+                        </p>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleAddToCart(product, i);
+                          }}
+                          className={`w-full py-2 text-sm rounded-lg font-medium text-white ${
+                            addedToCartIndex === i
+                              ? "bg-green-600"
+                              : "bg-blue-600 hover:bg-blue-700"
+                          }`}
+                        >
+                          {addedToCartIndex === i
+                            ? "✔ Added"
+                            : "🛒 Add to Cart"}
+                        </button>
+                      </div>
                     </div>
-
-                    <div className="mt-2">
-                      <p className="text-blue-600 font-semibold text-sm mb-1">
-                        ${product.price ?? "N/A"}
-                      </p>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleAddToCart(product, i);
-                        }}
-                        className={`w-full py-2 text-sm rounded-lg font-medium text-white ${
-                          addedToCartIndex === i
-                            ? "bg-green-600"
-                            : "bg-blue-600 hover:bg-blue-700"
-                        }`}
-                      >
-                        {addedToCartIndex === i ? "\u2714 Added" : "\uD83D\uDED2 Add to Cart"}
-                      </button>
-                    </div>
-                  </div>
-                </article>
+                  </article>
+                </a>
               </Link>
             );
           })}
