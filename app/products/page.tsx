@@ -14,7 +14,7 @@ interface MyProduct {
   component: string;
   name: string;
   description: string;
-  category?: string;
+  category?: string; // normalized lowercase
   image?: { filename: string } | string;
   price?: number | string;
   Price?: number | string;
@@ -24,7 +24,7 @@ interface MyProduct {
 
 interface StoryblokStory {
   slug: string;
-  content: MyProduct;
+  content: MyProduct & { Category?: string; Price?: number | string };
   _version?: number;
 }
 
@@ -67,14 +67,15 @@ export default function Page() {
         const stories: StoryblokStory[] = data.stories || [];
         const productList: MyProduct[] = stories.map((story) => ({
           ...story.content,
+          category: story.content.Category, // <-- normalize uppercase to lowercase key
           price: story.content.Price,
           slug: story.slug,
           _version: story._version,
         }));
+
         setProducts(productList);
         setFilteredProducts(productList);
 
-        // ✅ Type-safe category extraction
         const uniqueCategories: string[] = Array.from(
           new Set(
             productList
@@ -179,7 +180,7 @@ export default function Page() {
           ✨ Featured Products
         </h1>
 
-        {/* ✅ Modular Category Filter */}
+        {/* Category Filter UI */}
         <CategoryFilter
           categories={categories}
           selectedCategory={selectedCategory}
