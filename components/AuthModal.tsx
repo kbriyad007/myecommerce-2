@@ -3,6 +3,7 @@
 import { X, Mail, Lock, UserPlus } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -11,13 +12,58 @@ interface AuthModalProps {
 
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage(null);
+
+    if (!email || !password) {
+      setMessage("❌ Please enter both email and password.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      if (authMode === "login") {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        setMessage("✅ Logged in successfully!");
+      } else {
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        setMessage("✅ Registered! Please check your email for confirmation.");
+      }
+    } catch (error: any) {
+      setMessage(`❌ ${error.message || "Authentication error"}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    setMessage(null);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
+      if (error) throw error;
+      setMessage("✅ Redirecting to Google login...");
+    } catch (error: any) {
+      setMessage(`❌ ${error.message || "Google login failed"}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center px-4">
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-6 relative animate-fade-in">
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition"
@@ -26,7 +72,6 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <X className="w-5 h-5" />
         </button>
 
-        {/* Heading */}
         <h2 className="text-2xl font-bold mb-4 text-center text-gray-800 flex items-center justify-center gap-2">
           {authMode === "login" ? (
             <>
@@ -41,14 +86,16 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           )}
         </h2>
 
-        {/* Form */}
-        <form className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex items-center border border-gray-300 rounded-md px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500">
             <Mail className="w-4 h-4 text-gray-400 mr-2" />
             <input
               type="email"
               placeholder="Email"
               className="w-full text-sm bg-transparent focus:outline-none"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
 
@@ -58,18 +105,37 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               type="password"
               placeholder="Password"
               className="w-full text-sm bg-transparent focus:outline-none"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
+
+          {message && (
+            <p
+              className={`text-sm text-center ${
+                message.startsWith("✅") ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {message}
+            </p>
+          )}
 
           <button
             type="submit"
             className="w-full py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition"
+            disabled={loading}
           >
-            {authMode === "login" ? "Login" : "Register"}
+            {loading
+              ? authMode === "login"
+                ? "Logging in..."
+                : "Registering..."
+              : authMode === "login"
+              ? "Login"
+              : "Register"}
           </button>
         </form>
 
-        {/* Divider */}
         <div className="relative my-5">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-200" />
@@ -79,9 +145,9 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           </div>
         </div>
 
-        {/* Google Button */}
         <button
-          onClick={() => alert("🔐 Google login logic goes here")}
+          onClick={handleGoogleLogin}
+          disabled={loading}
           className="w-full flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-md hover:bg-gray-50 transition text-sm font-medium text-gray-700"
         >
           <Image
@@ -93,7 +159,6 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <span>Continue with Google</span>
         </button>
 
-        {/* Auth Mode Switch */}
         <div className="mt-4 text-sm text-center text-gray-600">
           {authMode === "login" ? (
             <>
@@ -119,7 +184,6 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         </div>
       </div>
 
-      {/* Animation */}
       <style jsx>{`
         .animate-fade-in {
           animation: fadeIn 0.3s ease-out;
@@ -139,4 +203,3 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     </div>
   );
 }
-
