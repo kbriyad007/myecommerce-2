@@ -66,16 +66,16 @@ export default function CategoryFilter({
           onClick={() => setMobileOpen(false)}
         ></div>
 
-        {/* Slide-up Panel */}
+        {/* Slide-in Panel from Left */}
         <div
-          className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-xl p-6 transform transition-transform duration-300 ${
-            mobileOpen ? "translate-y-0" : "translate-y-full"
+          className={`absolute top-0 bottom-0 left-0 bg-white w-72 rounded-r-2xl shadow-xl p-6 transform transition-transform duration-300 ${
+            mobileOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           <h3 className="text-lg font-semibold mb-4 text-gray-800 text-center">
             Filter by Category
           </h3>
-          <div className="flex flex-col gap-4 max-h-64 overflow-y-auto">
+          <div className="flex flex-col gap-4 max-h-[calc(100vh-150px)] overflow-y-auto">
             {categories.map((cat) => (
               <CategoryCheckbox
                 key={cat}
