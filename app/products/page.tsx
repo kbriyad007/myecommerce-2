@@ -67,7 +67,10 @@ export default function Page() {
         const stories: StoryblokStory[] = data.stories || [];
         const productList: MyProduct[] = stories.map((story) => ({
           ...story.content,
-          category: story.content.Category,
+          category:
+            typeof story.content.Category === "string"
+              ? story.content.Category.toLowerCase()
+              : "uncategorized",
           price: story.content.Price,
           slug: story.slug,
           _version: story._version,
@@ -175,15 +178,16 @@ export default function Page() {
 
       <HeroSection />
 
+      {/* Responsive container: flex row on md+ */}
       <section className="max-w-7xl mx-auto px-2 sm:px-4 py-10 flex flex-col md:flex-row gap-6">
-        {/* Sidebar / Category filter */}
+        {/* Category filter sidebar / mobile toggle inside CategoryFilter */}
         <CategoryFilter
           categories={categories}
           selectedCategory={selectedCategory}
           onSelect={setSelectedCategory}
         />
 
-        {/* Product grid */}
+        {/* Product grid takes full width on mobile, remaining on desktop */}
         <div className="flex-1 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {filteredProducts.map((product, i) => {
             const slug = product.slug || slugify(product.name || `product-${i}`);
