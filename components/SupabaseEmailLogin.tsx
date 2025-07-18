@@ -1,13 +1,7 @@
-// components/SupabaseEmailLogin.tsx
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from "@/lib/supabaseClient";  // <-- import your shared client
 
 export default function SupabaseEmailLogin() {
   const [email, setEmail] = useState("");
