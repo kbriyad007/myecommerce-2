@@ -1,9 +1,8 @@
-// components/LoginFormSection.tsx
 "use client";
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Facebook, Lock, LogIn, Mail, MailCheck, UserPlus } from "lucide-react";
+import { Facebook, Lock, Mail } from "lucide-react";
 import FirebaseGoogleLogin from "@/components/FirebaseGoogleLogin";
 
 interface LoginFormSectionProps {
@@ -39,9 +38,11 @@ export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
       }
 
       setMessage(`✅ ${isLogin ? "Login" : "Signup"} successful`);
-      if (onSuccess) onSuccess();
-    } catch (error: any) {
-      setMessage(`❌ ${error.message}`);
+      onSuccess?.();
+    } catch (error) {
+      const err =
+        error instanceof Error ? error.message : "An unknown error occurred.";
+      setMessage(`❌ ${err}`);
     } finally {
       setLoading(false);
     }
@@ -58,8 +59,10 @@ export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
       });
 
       if (error) throw error;
-    } catch (error: any) {
-      setMessage(`❌ ${error.message}`);
+    } catch (error) {
+      const err =
+        error instanceof Error ? error.message : "OAuth login failed.";
+      setMessage(`❌ ${err}`);
     } finally {
       setLoading(false);
     }
@@ -97,7 +100,7 @@ export default function LoginFormSection({ onSuccess }: LoginFormSectionProps) {
         <button
           onClick={handleAuth}
           disabled={loading}
-          className="w-full bg-blue-600 text-white rounded py-2 font-semibold hover:bg-blue-700"
+          className="w-full bg-blue-600 text-white rounded py-2 font-semibold hover:bg-blue-700 transition"
         >
           {loading ? "Processing..." : isLogin ? "Log In" : "Sign Up"}
         </button>
