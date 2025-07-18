@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { auth } from "@/lib/firebase.config";
+import { supabase } from "@/lib/supabaseClient";
+
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -21,6 +23,7 @@ export default function LoginFormSection({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
+  const [useSupabase, setUseSupabase] = useState(false); // Toggle between Firebase & Supabase
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -30,10 +33,28 @@ export default function LoginFormSection({
     setError(null);
 
     try {
-      if (isLogin) {
-        await signInWithEmailAndPassword(auth, email, password);
+      if (useSupabase) {
+        // Supabase email/password login/signup
+        if (isLogin) {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+          if (error) throw error;
+        } else {
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+          });
+          if (error) throw error;
+        }
       } else {
-        await createUserWithEmailAndPassword(auth, email, password);
+        // Firebase email/password login/signup
+        if (isLogin) {
+          await signInWithEmailAndPassword(auth, email, password);
+        } else {
+          await createUserWithEmailAndPassword(auth, email, password);
+        }
       }
 
       if (onSuccess) onSuccess();
@@ -105,6 +126,20 @@ export default function LoginFormSection({
         </button>
       </form>
 
+      <div className="mt-4 text-center">
+        <label className="inline-flex items-center space-x-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={useSupabase}
+            onChange={() => setUseSupabase(!useSupabase)}
+            className="form-checkbox h-5 w-5 text-blue-600"
+          />
+          <span className="text-sm select-none">
+            Use Supabase Auth (uncheck for Firebase)
+          </span>
+        </label>
+      </div>
+
       <p className="mt-4 text-center text-sm">
         {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
         <button
@@ -120,7 +155,7 @@ export default function LoginFormSection({
           onClick={handleGoogleLogin}
           className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition"
         >
-          Continue with Google
+          Continue with Google (Firebase only)
         </button>
       </div>
     </section>
