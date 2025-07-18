@@ -3,17 +3,15 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCmjMRWUdKCWXW9q8n1WxroHMf6jOXwLok",
-  authDomain: "next-js-37f1d.firebaseapp.com",
-  projectId: "next-js-37f1d",
-  storageBucket: "next-js-37f1d.firebasestorage.app",
-  messagingSenderId: "59141633941",
-  appId: "1:59141633941:web:c9394eacae61b03413e89c",
-  measurementId: "G-05QHTEWP3W",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Make sure we don’t re-initialize Firebase if it's already initialized
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = getAuth(app);
-
