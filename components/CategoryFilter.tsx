@@ -34,27 +34,30 @@ export default function CategoryFilter({
       {/* Sidebar for desktop */}
       <aside className="hidden md:block w-56 p-4 border border-gray-200 rounded-md shadow-sm bg-white sticky top-20 self-start">
         <h3 className="text-lg font-semibold mb-4">Categories</h3>
-        <div className="flex flex-col space-y-2">
-          <label className="inline-flex items-center cursor-pointer">
+        <div className="flex flex-col space-y-3">
+          <label className="inline-flex items-center cursor-pointer select-none">
             <input
               type="radio"
               name="category"
-              className="form-radio"
+              className="form-radio h-5 w-5 text-blue-600"
               checked={selectedCategory === "All"}
               onChange={() => onSelect("All")}
             />
-            <span className="ml-2 text-gray-700">All</span>
+            <span className="ml-3 text-gray-700 capitalize">All</span>
           </label>
           {categories.map((cat) => (
-            <label key={cat} className="inline-flex items-center cursor-pointer">
+            <label
+              key={cat}
+              className="inline-flex items-center cursor-pointer select-none"
+            >
               <input
                 type="radio"
                 name="category"
-                className="form-radio"
+                className="form-radio h-5 w-5 text-blue-600"
                 checked={selectedCategory === cat}
                 onChange={() => handleSelect(cat)}
               />
-              <span className="ml-2 text-gray-700">{cat}</span>
+              <span className="ml-3 text-gray-700 capitalize">{cat}</span>
             </label>
           ))}
         </div>
@@ -65,35 +68,35 @@ export default function CategoryFilter({
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-center px-4">
           <div className="bg-white rounded-md p-6 w-full max-w-xs shadow-lg">
             <h3 className="text-lg font-semibold mb-4">Categories</h3>
-            <div className="flex flex-col space-y-3 max-h-64 overflow-y-auto">
-              <label className="inline-flex items-center cursor-pointer">
+            <div className="flex flex-col space-y-4 max-h-64 overflow-y-auto">
+              <label className="inline-flex items-center cursor-pointer select-none">
                 <input
                   type="radio"
                   name="category-mobile"
-                  className="form-radio"
+                  className="form-radio h-5 w-5 text-blue-600"
                   checked={selectedCategory === "All"}
                   onChange={() => handleSelect("All")}
                 />
-                <span className="ml-2 text-gray-700">All</span>
+                <span className="ml-3 text-gray-700 capitalize">All</span>
               </label>
               {categories.map((cat) => (
                 <label
                   key={cat}
-                  className="inline-flex items-center cursor-pointer"
+                  className="inline-flex items-center cursor-pointer select-none"
                 >
                   <input
                     type="radio"
                     name="category-mobile"
-                    className="form-radio"
+                    className="form-radio h-5 w-5 text-blue-600"
                     checked={selectedCategory === cat}
                     onChange={() => handleSelect(cat)}
                   />
-                  <span className="ml-2 text-gray-700">{cat}</span>
+                  <span className="ml-3 text-gray-700 capitalize">{cat}</span>
                 </label>
               ))}
             </div>
             <button
-              className="mt-4 w-full bg-blue-600 text-white py-2 rounded-md"
+              className="mt-6 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
               onClick={() => setMobileOpen(false)}
             >
               Close
