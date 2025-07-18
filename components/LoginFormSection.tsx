@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { auth } from "@/lib/firebase.config";
 import { supabase } from "@/lib/supabaseClient";
-
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -14,16 +13,17 @@ import {
 interface LoginFormSectionProps {
   onSuccess?: () => void;
   onClose?: () => void;
+  useSupabase?: boolean; // optional prop to switch between Firebase and Supabase auth
 }
 
 export default function LoginFormSection({
   onSuccess,
   onClose,
+  useSupabase = false,
 }: LoginFormSectionProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
-  const [useSupabase, setUseSupabase] = useState(false); // Toggle between Firebase & Supabase
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -34,22 +34,16 @@ export default function LoginFormSection({
 
     try {
       if (useSupabase) {
-        // Supabase email/password login/signup
+        // Supabase email/password auth
         if (isLogin) {
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
           if (error) throw error;
         } else {
-          const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-          });
+          const { error } = await supabase.auth.signUp({ email, password });
           if (error) throw error;
         }
       } else {
-        // Firebase email/password login/signup
+        // Firebase email/password auth
         if (isLogin) {
           await signInWithEmailAndPassword(auth, email, password);
         } else {
@@ -59,8 +53,7 @@ export default function LoginFormSection({
 
       if (onSuccess) onSuccess();
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Unknown error occurred";
+      const message = err instanceof Error ? err.message : "Unknown error occurred";
       setError(message);
     } finally {
       setLoading(false);
@@ -70,13 +63,13 @@ export default function LoginFormSection({
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
+      // Google login only supported with Firebase here
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       console.log("✅ Google User:", user);
       if (onSuccess) onSuccess();
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Google login failed";
+      const message = err instanceof Error ? err.message : "Google login failed";
       setError(message);
     }
   };
@@ -126,20 +119,6 @@ export default function LoginFormSection({
         </button>
       </form>
 
-      <div className="mt-4 text-center">
-        <label className="inline-flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={useSupabase}
-            onChange={() => setUseSupabase(!useSupabase)}
-            className="form-checkbox h-5 w-5 text-blue-600"
-          />
-          <span className="text-sm select-none">
-            Use Supabase Auth (uncheck for Firebase)
-          </span>
-        </label>
-      </div>
-
       <p className="mt-4 text-center text-sm">
         {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
         <button
@@ -150,14 +129,17 @@ export default function LoginFormSection({
         </button>
       </p>
 
-      <div className="my-4 border-t pt-4">
-        <button
-          onClick={handleGoogleLogin}
-          className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition"
-        >
-          Continue with Google (Firebase only)
-        </button>
-      </div>
+      {!useSupabase && (
+        <div className="my-4 border-t pt-4">
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition"
+          >
+            Continue with Google
+          </button>
+        </div>
+      )}
     </section>
   );
 }
+
