@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { SlidersHorizontal } from "lucide-react"; // modern icon
-import clsx from "clsx";
 
 interface CategoryFilterProps {
   categories: string[];
@@ -60,28 +59,27 @@ export default function CategoryFilter({
 
       {/* Mobile Overlay Panel */}
       <div
-        className={clsx(
-          "fixed inset-0 z-40 transition-all duration-300 ease-in-out md:hidden",
+        className={`fixed inset-0 z-40 transition-all duration-300 ease-in-out md:hidden ${
           mobileOpen ? "visible" : "invisible"
-        )}
+        }`}
       >
         {/* Background dim */}
         <div
-          className={clsx(
-            "absolute inset-0 bg-black bg-opacity-50 transition-opacity duration-300",
+          className={`absolute inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${
             mobileOpen ? "opacity-100" : "opacity-0"
-          )}
+          }`}
           onClick={() => setMobileOpen(false)}
         ></div>
 
         {/* Slide-up Panel */}
         <div
-          className={clsx(
-            "absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-xl p-6 transform transition-transform duration-300",
+          className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-xl p-6 transform transition-transform duration-300 ${
             mobileOpen ? "translate-y-0" : "translate-y-full"
-          )}
+          }`}
         >
-          <h3 className="text-lg font-semibold mb-4 text-gray-800 text-center">Filter by Category</h3>
+          <h3 className="text-lg font-semibold mb-4 text-gray-800 text-center">
+            Filter by Category
+          </h3>
           <div className="flex flex-col space-y-4 max-h-64 overflow-y-auto">
             <CategoryRadio
               name="category-mobile"
