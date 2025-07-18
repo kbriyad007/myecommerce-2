@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { auth } from "@/lib/firebase.config"; // your firebase auth instance
+import { auth } from "@/lib/firebase.config";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { Mail, Lock, LogIn } from "lucide-react";
 
@@ -50,16 +50,20 @@ export default function LoginForm() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     setMessage("");
-    const provider = new GoogleAuthProvider();
 
     try {
+      const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      setMessage(`✅ Logged in as ${user.email}`);
-      // You can add further logic here, e.g., redirect or save user info
-    } catch (err: unknown) {
-      const errorMsg =
-        err instanceof Error ? err.message : "Google login failed.";
+
+      if (user) {
+        setMessage(`✅ Logged in with Google as ${user.email}`);
+        // Optional: You can save user info in your backend or redirect
+      } else {
+        setMessage("❌ Google login failed. No user returned.");
+      }
+    } catch (error: any) {
+      const errorMsg = error?.message || "Google login failed.";
       setMessage(`❌ ${errorMsg}`);
     } finally {
       setLoading(false);
@@ -113,7 +117,7 @@ export default function LoginForm() {
           : "Register"}
       </button>
 
-      {/* Google Login Button */}
+      {/* Google Login Button (via Firebase) */}
       <button
         onClick={handleGoogleLogin}
         disabled={loading}
