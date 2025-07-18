@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Mail, Lock } from "lucide-react";
+import { auth } from "@/lib/firebase.config"; // your firebase auth instance
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { Mail, Lock, LogIn } from "lucide-react";
 
 export default function LoginForm() {
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
@@ -39,6 +41,25 @@ export default function LoginForm() {
     } catch (err: unknown) {
       const errorMsg =
         err instanceof Error ? err.message : "Something went wrong.";
+      setMessage(`❌ ${errorMsg}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    setMessage("");
+    const provider = new GoogleAuthProvider();
+
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      setMessage(`✅ Logged in as ${user.email}`);
+      // You can add further logic here, e.g., redirect or save user info
+    } catch (err: unknown) {
+      const errorMsg =
+        err instanceof Error ? err.message : "Google login failed.";
       setMessage(`❌ ${errorMsg}`);
     } finally {
       setLoading(false);
@@ -90,6 +111,16 @@ export default function LoginForm() {
           : authMode === "login"
           ? "Login"
           : "Register"}
+      </button>
+
+      {/* Google Login Button */}
+      <button
+        onClick={handleGoogleLogin}
+        disabled={loading}
+        className="flex items-center justify-center gap-2 border border-gray-300 text-sm w-full py-2 rounded hover:bg-gray-100 transition"
+      >
+        <LogIn className="w-4 h-4" />
+        Continue with Google
       </button>
 
       {/* Toggle Auth Mode */}
