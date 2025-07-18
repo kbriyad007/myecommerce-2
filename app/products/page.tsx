@@ -8,13 +8,13 @@ import CartMenu from "@/app/components/CartMenu";
 import HeroSection from "@/components/HeroSection";
 import Navbar from "@/components/Navbar";
 import LoginFormSection from "@/components/LoginFormSection";
-import CategoryFilter from "@/components/CategoryFilter"; // ✅ new import
+import CategoryFilter from "@/components/CategoryFilter";
 
 interface MyProduct {
   component: string;
   name: string;
   description: string;
-  category?: string; // ✅ added category
+  category?: string;
   image?: { filename: string } | string;
   price?: number | string;
   Price?: number | string;
@@ -74,9 +74,13 @@ export default function Page() {
         setProducts(productList);
         setFilteredProducts(productList);
 
-        // ✅ Extract unique categories
-        const uniqueCategories = Array.from(
-          new Set(productList.map((p) => p.category).filter(Boolean))
+        // ✅ Type-safe category extraction
+        const uniqueCategories: string[] = Array.from(
+          new Set(
+            productList
+              .map((p) => p.category)
+              .filter((cat): cat is string => typeof cat === "string")
+          )
         );
         setCategories(uniqueCategories);
       })
@@ -175,7 +179,7 @@ export default function Page() {
           ✨ Featured Products
         </h1>
 
-        {/* ✅ Category Filter UI */}
+        {/* ✅ Modular Category Filter */}
         <CategoryFilter
           categories={categories}
           selectedCategory={selectedCategory}
