@@ -4,7 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { auth } from "@/lib/firebase.config";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { Mail, Lock, LogIn } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
 
 export default function LoginForm() {
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
@@ -38,8 +38,9 @@ export default function LoginForm() {
             : "✅ Login successful!"
         );
       }
-    } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : "Something went wrong.";
+    } catch (err) {
+      const errorMsg =
+        err instanceof Error ? err.message : "Something went wrong.";
       setMessage(`❌ ${errorMsg}`);
     } finally {
       setLoading(false);
@@ -60,8 +61,9 @@ export default function LoginForm() {
       } else {
         setMessage("❌ Google login failed. No user returned.");
       }
-    } catch (error: unknown) {
-      const errorMsg = error instanceof Error ? error.message : "Google login failed.";
+    } catch (err) {
+      const errorMsg =
+        err instanceof Error ? err.message : "Google login failed.";
       setMessage(`❌ ${errorMsg}`);
     } finally {
       setLoading(false);
@@ -69,14 +71,13 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
       {message && (
         <div className="text-sm text-center font-medium text-red-500">
           {message}
         </div>
       )}
 
-      {/* Email Input */}
       <div className="relative">
         <input
           type="email"
@@ -88,7 +89,6 @@ export default function LoginForm() {
         <Mail className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
       </div>
 
-      {/* Password Input */}
       <div className="relative">
         <input
           type="password"
@@ -100,7 +100,6 @@ export default function LoginForm() {
         <Lock className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
       </div>
 
-      {/* Submit Button */}
       <button
         onClick={handleAuth}
         disabled={loading}
@@ -115,17 +114,15 @@ export default function LoginForm() {
           : "Register"}
       </button>
 
-      {/* Google Login Button (Firebase) */}
       <button
         onClick={handleGoogleLogin}
         disabled={loading}
         className="flex items-center justify-center gap-2 border border-gray-300 text-sm w-full py-2 rounded hover:bg-gray-100 transition"
       >
-        <LogIn className="w-4 h-4" />
+        <span className="text-red-600 font-bold">G</span>
         Continue with Google
       </button>
 
-      {/* Toggle Auth Mode */}
       <div className="text-center text-sm text-gray-500 mt-2">
         {authMode === "login" ? (
           <>
@@ -152,4 +149,3 @@ export default function LoginForm() {
     </div>
   );
 }
-
