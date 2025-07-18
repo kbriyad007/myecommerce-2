@@ -39,8 +39,7 @@ export default function LoginForm() {
         );
       }
     } catch (err: unknown) {
-      const errorMsg =
-        err instanceof Error ? err.message : "Something went wrong.";
+      const errorMsg = err instanceof Error ? err.message : "Something went wrong.";
       setMessage(`❌ ${errorMsg}`);
     } finally {
       setLoading(false);
@@ -58,12 +57,11 @@ export default function LoginForm() {
 
       if (user) {
         setMessage(`✅ Logged in with Google as ${user.email}`);
-        // Optional: You can save user info in your backend or redirect
       } else {
         setMessage("❌ Google login failed. No user returned.");
       }
-    } catch (error: any) {
-      const errorMsg = error?.message || "Google login failed.";
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : "Google login failed.";
       setMessage(`❌ ${errorMsg}`);
     } finally {
       setLoading(false);
@@ -117,7 +115,7 @@ export default function LoginForm() {
           : "Register"}
       </button>
 
-      {/* Google Login Button (via Firebase) */}
+      {/* Google Login Button (Firebase) */}
       <button
         onClick={handleGoogleLogin}
         disabled={loading}
@@ -154,3 +152,4 @@ export default function LoginForm() {
     </div>
   );
 }
+
