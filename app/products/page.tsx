@@ -103,8 +103,8 @@ export default function Page() {
         selectedCategories.includes(p.category || "");
 
       const matchesSearch =
-        p.name?.toLowerCase().includes(term) ||
-        p.description?.toLowerCase().includes(term);
+        (p.name?.toLowerCase().includes(term) ?? false) ||
+        (p.description?.toLowerCase().includes(term) ?? false);
 
       return matchesCategory && matchesSearch;
     });
@@ -192,7 +192,10 @@ export default function Page() {
             >
               &times;
             </button>
-            <LoginFormSection />
+            <LoginFormSection
+              onSuccess={() => setShowForm(false)}
+              onClose={() => setShowForm(false)}
+            />
           </div>
         </div>
       )}
@@ -255,9 +258,7 @@ export default function Page() {
                               : "bg-blue-600 hover:bg-blue-700"
                           }`}
                         >
-                          {addedToCartIndex === i
-                            ? "✔ Added"
-                            : "🛒 Add to Cart"}
+                          {addedToCartIndex === i ? "✔ Added" : "🛒 Add to Cart"}
                         </button>
                       </div>
                     </div>
