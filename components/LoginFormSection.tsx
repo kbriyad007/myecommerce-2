@@ -1,74 +1,92 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase.config";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '@/lib/firebase.config';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
-export default function LoginFormSection() {
+const LoginFormSection = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSignup, setIsSignup] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
+    setError('');
 
     try {
-      if (isLogin) {
-        // Sign In
-        await signInWithEmailAndPassword(auth, email, password);
-      } else {
-        // Sign Up
+      if (isSignup) {
         await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
       }
+      router.push('/admin');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Something went wrong';
+      setError(message);
+    }
+  };
 
-      // ✅ Redirect to admin page after success
-      router.push("/admin");
-    } catch (err: any) {
-      setError(err.message);
+  const handleGoogleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      router.push('/admin');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Google login failed';
+      setError(message);
     }
   };
 
   return (
-    <div className="p-6 max-w-md mx-auto bg-white rounded-xl shadow-md space-y-6">
-      <h2 className="text-xl font-bold">{isLogin ? "Login" : "Sign Up"}</h2>
-      <form onSubmit={handleAuth} className="space-y-4">
-        <input
+    <div className="max-w-sm mx-auto p-6 border rounded-xl shadow-md mt-12">
+      <h2 className="text-2xl font-semibold mb-4 text-center">
+        {isSignup ? 'Sign Up' : 'Login'}
+      </h2>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Input
           type="email"
           placeholder="Email"
-          className="w-full p-2 border rounded"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
           required
         />
-        <input
+        <Input
           type="password"
           placeholder="Password"
-          className="w-full p-2 border rounded"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
           required
         />
+
         {error && <p className="text-red-500 text-sm">{error}</p>}
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
-          {isLogin ? "Login" : "Sign Up"}
-        </button>
+
+        <Button type="submit" className="w-full">
+          {isSignup ? 'Sign Up' : 'Login'}
+        </Button>
       </form>
-      <p className="text-sm text-center">
-        {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+
+      <Button variant="outline" className="w-full mt-4" onClick={handleGoogleLogin}>
+        Continue with Google
+      </Button>
+
+      <p className="mt-4 text-sm text-center">
+        {isSignup ? 'Already have an account?' : "Don't have an account?"}{' '}
         <button
-          className="text-blue-600 underline"
-          onClick={() => setIsLogin(!isLogin)}
+          type="button"
+          onClick={() => setIsSignup(!isSignup)}
+          className="text-blue-500 hover:underline"
         >
-          {isLogin ? "Sign Up" : "Login"}
+          {isSignup ? 'Login' : 'Sign Up'}
         </button>
       </p>
     </div>
   );
-}
+};
+
+export default LoginFormSection;
