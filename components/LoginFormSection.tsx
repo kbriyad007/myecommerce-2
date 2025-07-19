@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase.config";
 import {
   signInWithEmailAndPassword,
@@ -10,11 +11,11 @@ import {
 } from "firebase/auth";
 
 interface LoginFormSectionProps {
-  onSuccess: () => void;
   onClose: () => void;
 }
 
-export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectionProps) {
+export default function LoginFormSection({ onClose }: LoginFormSectionProps) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
@@ -30,7 +31,7 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
-      onSuccess(); // Trigger parent callback (e.g., navigate to admin)
+      router.push("/admin");  // Navigate to /admin after login/signup success
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -44,7 +45,7 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      onSuccess(); // Trigger parent callback after Google login
+      router.push("/admin");  // Navigate to /admin after Google login success
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
