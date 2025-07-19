@@ -8,12 +8,13 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  sendEmailVerification,
 } from "firebase/auth";
 
 interface LoginFormSectionProps {
   onSuccess?: () => void;
   onClose?: () => void;
-  useSupabase?: boolean; // optional prop to switch between Firebase and Supabase auth
+  useSupabase?: boolean;
 }
 
 export default function LoginFormSection({
@@ -25,36 +26,51 @@ export default function LoginFormSection({
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+    setMessage(null);
+    setLoading(true);
 
     try {
       if (useSupabase) {
-        // Supabase email/password auth
+        // Supabase auth
         if (isLogin) {
           const { error } = await supabase.auth.signInWithPassword({ email, password });
           if (error) throw error;
         } else {
           const { error } = await supabase.auth.signUp({ email, password });
           if (error) throw error;
+          setMessage("✅ Please check your email to confirm your account.");
         }
       } else {
-        // Firebase email/password auth
+        // Firebase auth
         if (isLogin) {
-          await signInWithEmailAndPassword(auth, email, password);
+          const result = await signInWithEmailAndPassword(auth, email, password);
+          const user = result.user;
+
+          if (!user.emailVerified) {
+            setError("❌ Email not verified. Please check your inbox.");
+            return;
+          }
         } else {
-          await createUserWithEmailAndPassword(auth, email, password);
+          const result = await createUserWithEmailAndPassword(auth, email, password);
+          const user = result.user;
+
+          if (user) {
+            await sendEmailVerification(user);
+            setMessage("✅ Signup successful. Please verify your email before logging in.");
+            return; // prevent auto-login after signup
+          }
         }
       }
 
       if (onSuccess) onSuccess();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Unknown error occurred";
-      setError(message);
+    } catch (err: any) {
+      setError(err?.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -62,15 +78,14 @@ export default function LoginFormSection({
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
+    setError(null);
     try {
-      // Google login only supported with Firebase here
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       console.log("✅ Google User:", user);
       if (onSuccess) onSuccess();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Google login failed";
-      setError(message);
+    } catch (err: any) {
+      setError(err?.message || "Google login failed");
     }
   };
 
@@ -109,6 +124,7 @@ export default function LoginFormSection({
         />
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
+        {message && <p className="text-green-600 text-sm">{message}</p>}
 
         <button
           type="submit"
@@ -122,7 +138,11 @@ export default function LoginFormSection({
       <p className="mt-4 text-center text-sm">
         {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
         <button
-          onClick={() => setIsLogin(!isLogin)}
+          onClick={() => {
+            setIsLogin(!isLogin);
+            setError(null);
+            setMessage(null);
+          }}
           className="text-blue-600 hover:underline font-medium"
         >
           {isLogin ? "Sign Up" : "Login"}
@@ -142,4 +162,3 @@ export default function LoginFormSection({
     </section>
   );
 }
-
