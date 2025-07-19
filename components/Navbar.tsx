@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react"; // Removed useRouter import
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import LoginFormSection from "./LoginFormSection";
@@ -15,13 +14,7 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
   const [searchValue, setSearchValue] = useState("");
   const [showLogin, setShowLogin] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const router = useRouter();
-
-  // Note: handleLoginSuccess is no longer needed because redirect is inside LoginFormSection
-  // const handleLoginSuccess = () => {
-  //   setShowLogin(false);
-  //   router.push("/admin"); // Or your dashboard route
-  // };
+  // Removed router since it's unused
 
   const navLinks = [
     { label: "Home", href: "/" },
