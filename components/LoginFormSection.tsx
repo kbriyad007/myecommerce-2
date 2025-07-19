@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase.config";
 import {
   signInWithEmailAndPassword,
@@ -10,8 +9,12 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 
-export default function LoginFormSection() {
-  const router = useRouter();
+interface LoginFormSectionProps {
+  onSuccess: () => void;
+  onClose: () => void;
+}
+
+export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectionProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
@@ -27,7 +30,7 @@ export default function LoginFormSection() {
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
-      router.push("/admin");
+      onSuccess(); // Trigger parent callback (e.g., navigate to admin)
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -41,7 +44,7 @@ export default function LoginFormSection() {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      router.push("/admin");
+      onSuccess(); // Trigger parent callback after Google login
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -52,7 +55,16 @@ export default function LoginFormSection() {
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+    <div className="max-w-sm mx-auto mt-10 p-6 bg-white rounded-lg shadow-md relative">
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl font-bold"
+        aria-label="Close login form"
+      >
+        ×
+      </button>
+
       <h2 className="text-2xl font-bold mb-4 text-center">
         {isSignUp ? "Sign Up" : "Login"}
       </h2>
