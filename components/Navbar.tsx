@@ -17,10 +17,11 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const router = useRouter();
 
-  const handleLoginSuccess = () => {
-    setShowLogin(false);
-    router.push("/admin"); // Or your dashboard route
-  };
+  // Note: handleLoginSuccess is no longer needed because redirect is inside LoginFormSection
+  // const handleLoginSuccess = () => {
+  //   setShowLogin(false);
+  //   router.push("/admin"); // Or your dashboard route
+  // };
 
   const navLinks = [
     { label: "Home", href: "/" },
@@ -170,7 +171,6 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
               ×
             </button>
             <LoginFormSection
-              onSuccess={handleLoginSuccess}
               onClose={() => setShowLogin(false)}
             />
           </div>
