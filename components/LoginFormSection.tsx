@@ -1,164 +1,135 @@
 "use client";
 
 import { useState } from "react";
-import { auth } from "@/lib/firebase.config";
-import { supabase } from "@/lib/supabaseClient";
+import { auth } from "@/lib/firebase"; // make sure your firebase config exports `auth`
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
   sendEmailVerification,
 } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { Mail, Lock, LogIn, UserPlus } from "lucide-react";
 
-interface LoginFormSectionProps {
-  onSuccess?: () => void;
-  onClose?: () => void;
-  useSupabase?: boolean;
-}
+export default function LoginFormSection() {
+  const router = useRouter();
 
-export default function LoginFormSection({
-  onSuccess,
-  onClose,
-  useSupabase = false,
-}: LoginFormSectionProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
-    setMessage(null);
-    setLoading(true);
 
     try {
-      if (useSupabase) {
-        // Supabase auth
-        if (isLogin) {
-          const { error } = await supabase.auth.signInWithPassword({ email, password });
-          if (error) throw error;
-        } else {
-          const { error } = await supabase.auth.signUp({ email, password });
-          if (error) throw error;
-          setMessage("✅ Please check your email to confirm your account.");
+      if (isLogin) {
+        // Login
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        if (!user.emailVerified) {
+          setMessage("Please verify your email before logging in.");
+          return;
         }
+
+        setMessage("Login successful!");
+        router.push("/dashboard"); // Change to your desired page
       } else {
-        // Firebase auth
-        if (isLogin) {
-          const result = await signInWithEmailAndPassword(auth, email, password);
-          const user = result.user;
+        // Sign up
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
 
-          if (!user.emailVerified) {
-            setError("❌ Email not verified. Please check your inbox.");
-            return;
-          }
-        } else {
-          const result = await createUserWithEmailAndPassword(auth, email, password);
-          const user = result.user;
-
-          if (user) {
-            await sendEmailVerification(user);
-            setMessage("✅ Signup successful. Please verify your email before logging in.");
-            return; // prevent auto-login after signup
-          }
-        }
+        await sendEmailVerification(user);
+        setMessage("Signup successful! Please check your email for verification.");
+        setIsLogin(true); // Switch to login after signup
       }
-
-      if (onSuccess) onSuccess();
-    } catch (err: any) {
-      setError(err?.message || "Something went wrong.");
-    } finally {
-      setLoading(false);
+    } catch (error: unknown) {
+      const err = error as Error;
+      setMessage(err.message);
     }
   };
 
-  const handleGoogleLogin = async () => {
-    const provider = new GoogleAuthProvider();
-    setError(null);
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      console.log("✅ Google User:", user);
-      if (onSuccess) onSuccess();
-    } catch (err: any) {
-      setError(err?.message || "Google login failed");
-    }
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
   };
 
   return (
-    <section className="relative w-full max-w-md mx-auto px-4 py-6 bg-white rounded-lg shadow">
-      {onClose && (
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl"
-          aria-label="Close login form"
-        >
-          &times;
-        </button>
-      )}
-
-      <h2 className="text-2xl font-bold mb-4 text-center">
-        {isLogin ? "Login" : "Create Account"}
+    <section className="max-w-md mx-auto mt-12 p-6 bg-white rounded-xl shadow-md space-y-4">
+      <h2 className="text-2xl font-semibold text-center">
+        {isLogin ? "Login" : "Sign Up"}
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          required
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          required
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+      {message && (
+        <p className="text-sm text-center text-red-500">{message}</p>
+      )}
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        {message && <p className="text-green-600 text-sm">{message}</p>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="email" className="block mb-1 font-medium">
+            Email
+          </label>
+          <div className="flex items-center border rounded px-3 py-2">
+            <Mail className="w-4 h-4 mr-2" />
+            <input
+              id="email"
+              type="email"
+              required
+              value={email}
+              onChange={handleEmailChange}
+              className="w-full outline-none"
+              placeholder="you@example.com"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="password" className="block mb-1 font-medium">
+            Password
+          </label>
+          <div className="flex items-center border rounded px-3 py-2">
+            <Lock className="w-4 h-4 mr-2" />
+            <input
+              id="password"
+              type="password"
+              required
+              value={password}
+              onChange={handlePasswordChange}
+              className="w-full outline-none"
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
 
         <button
           type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+          className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
         >
-          {loading ? "Processing..." : isLogin ? "Login" : "Sign Up"}
+          {isLogin ? (
+            <span className="flex justify-center items-center gap-2">
+              <LogIn className="w-4 h-4" /> Login
+            </span>
+          ) : (
+            <span className="flex justify-center items-center gap-2">
+              <UserPlus className="w-4 h-4" /> Sign Up
+            </span>
+          )}
         </button>
       </form>
 
-      <p className="mt-4 text-center text-sm">
+      <p className="text-sm text-center">
         {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
         <button
-          onClick={() => {
-            setIsLogin(!isLogin);
-            setError(null);
-            setMessage(null);
-          }}
-          className="text-blue-600 hover:underline font-medium"
+          type="button"
+          onClick={() => setIsLogin(!isLogin)}
+          className="text-blue-600 hover:underline"
         >
-          {isLogin ? "Sign Up" : "Login"}
+          {isLogin ? "Sign up" : "Login"}
         </button>
       </p>
-
-      {!useSupabase && (
-        <div className="my-4 border-t pt-4">
-          <button
-            onClick={handleGoogleLogin}
-            className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition"
-          >
-            Continue with Google
-          </button>
-        </div>
-      )}
     </section>
   );
 }
