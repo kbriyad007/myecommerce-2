@@ -31,7 +31,7 @@ export default function LoginFormSection({ onClose }: LoginFormSectionProps) {
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
-      router.push("/admin");  // Navigate to /admin after login/signup success
+      router.push("/admin");  // Navigate to /admin after success
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -45,7 +45,7 @@ export default function LoginFormSection({ onClose }: LoginFormSectionProps) {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      router.push("/admin");  // Navigate to /admin after Google login success
+      router.push("/admin");  // Navigate to /admin after Google sign-in success
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -120,3 +120,4 @@ export default function LoginFormSection({ onClose }: LoginFormSectionProps) {
     </div>
   );
 }
+
