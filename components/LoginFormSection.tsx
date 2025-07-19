@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { auth } from "@/lib/firebase"; // make sure your firebase config exports `auth`
+import { auth } from "@/lib/firebase.config"; // make sure your firebase config exports `auth`
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
