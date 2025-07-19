@@ -120,4 +120,3 @@ export default function LoginFormSection({ onClose }: LoginFormSectionProps) {
     </div>
   );
 }
-
