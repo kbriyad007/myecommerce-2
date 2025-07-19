@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { auth } from "@/lib/firebase.config"; // your firebase config should export `auth`
+import { auth } from "@/lib/firebase.config";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendEmailVerification,
 } from "firebase/auth";
-import { useRouter } from "next/navigation";
 import { Mail, Lock, LogIn, UserPlus } from "lucide-react";
 
 interface LoginFormSectionProps {
@@ -16,8 +15,6 @@ interface LoginFormSectionProps {
 }
 
 export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectionProps) {
-  const router = useRouter();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
@@ -40,9 +37,6 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
         setMessage("Login successful!");
 
         if (onSuccess) onSuccess();
-
-        // You can also navigate here if you want, or let parent handle
-        // router.push("/dashboard");
       } else {
         // Sign up
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -140,7 +134,6 @@ export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectio
         </button>
       </p>
 
-      {/* Optional close button, if you want to allow closing from inside */}
       {onClose && (
         <div className="text-center mt-2">
           <button
