@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react"; // Removed useRouter import
+import { useState, useEffect } from "react";
+import { auth } from "@/lib/firebase.config"; // import your firebase auth instance
+import { onAuthStateChanged, User } from "firebase/auth";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import LoginFormSection from "./LoginFormSection";
@@ -14,7 +16,16 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
   const [searchValue, setSearchValue] = useState("");
   const [showLogin, setShowLogin] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  // Removed router since it's unused
+  const [user, setUser] = useState<User | null>(null);
+
+  // Listen for auth state changes to get user info
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const navLinks = [
     { label: "Home", href: "/" },
@@ -57,36 +68,23 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
               }}
               className="w-full text-sm px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
             />
-            {searchValue && suggestions.length > 0 && (
-              <ul className="absolute mt-1 bg-white w-full shadow-lg border rounded-md z-10 max-h-60 overflow-auto">
-                {suggestions
-                  .filter((s) =>
-                    s.toLowerCase().includes(searchValue.toLowerCase())
-                  )
-                  .map((s, i) => (
-                    <li
-                      key={i}
-                      onClick={() => {
-                        setSearchValue(s);
-                        onSearch(s);
-                      }}
-                      className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
-                    >
-                      {s}
-                    </li>
-                  ))}
-              </ul>
-            )}
           </div>
 
           {/* Right buttons */}
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => setShowLogin(true)}
-              className="text-sm font-medium text-blue-600 hover:underline"
-            >
-              Login
-            </button>
+            {user ? (
+              // Show email if logged in
+              <span className="text-gray-700 text-sm font-medium">
+                {user.email}
+              </span>
+            ) : (
+              <button
+                onClick={() => setShowLogin(true)}
+                className="text-sm font-medium text-blue-600 hover:underline"
+              >
+                Login
+              </button>
+            )}
 
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -126,27 +124,6 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
                 }}
                 className="w-full text-sm px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
               />
-              {searchValue && suggestions.length > 0 && (
-                <ul className="absolute mt-1 bg-white w-full shadow-lg border rounded-md z-10 max-h-60 overflow-auto">
-                  {suggestions
-                    .filter((s) =>
-                      s.toLowerCase().includes(searchValue.toLowerCase())
-                    )
-                    .map((s, i) => (
-                      <li
-                        key={i}
-                        onClick={() => {
-                          setSearchValue(s);
-                          onSearch(s);
-                          setMobileOpen(false);
-                        }}
-                        className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
-                      >
-                        {s}
-                      </li>
-                    ))}
-                </ul>
-              )}
             </div>
           </div>
         )}
@@ -163,9 +140,7 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
             >
               ×
             </button>
-            <LoginFormSection
-              onClose={() => setShowLogin(false)}
-            />
+            <LoginFormSection onClose={() => setShowLogin(false)} />
           </div>
         </div>
       )}
