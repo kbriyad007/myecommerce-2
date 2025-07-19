@@ -1,9 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { auth } from "@/lib/firebase.config";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  auth,
+} from "@/lib/firebase.config";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 import { Mail, Lock } from "lucide-react";
 
 export default function LoginForm() {
@@ -24,24 +30,26 @@ export default function LoginForm() {
     }
 
     try {
-      const { error } =
-        authMode === "login"
-          ? await supabase.auth.signInWithPassword({ email, password })
-          : await supabase.auth.signUp({ email, password });
-
-      if (error) {
-        setMessage(`❌ ${error.message}`);
+      if (authMode === "login") {
+        await signInWithEmailAndPassword(auth, email, password);
+        setMessage("✅ Login successful!");
       } else {
-        setMessage(
-          authMode === "register"
-            ? "✅ Signup successful! Check your email for confirmation."
-            : "✅ Login successful!"
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
         );
+        // Optionally send email verification
+        if (userCredential.user) {
+          await userCredential.user.sendEmailVerification();
+          setMessage(
+            "✅ Signup successful! Please check your email to verify your account."
+          );
+        }
       }
-    } catch (err) {
-      const errorMsg =
-        err instanceof Error ? err.message : "Something went wrong.";
-      setMessage(`❌ ${errorMsg}`);
+    } catch (error) {
+      const err = error as Error;
+      setMessage(`❌ ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -61,10 +69,9 @@ export default function LoginForm() {
       } else {
         setMessage("❌ Google login failed. No user returned.");
       }
-    } catch (err) {
-      const errorMsg =
-        err instanceof Error ? err.message : "Google login failed.";
-      setMessage(`❌ ${errorMsg}`);
+    } catch (error) {
+      const err = error as Error;
+      setMessage(`❌ ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -73,7 +80,11 @@ export default function LoginForm() {
   return (
     <div className="space-y-4 w-full max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
       {message && (
-        <div className="text-sm text-center font-medium text-red-500">
+        <div
+          className={`text-sm text-center font-medium ${
+            message.startsWith("❌") ? "text-red-500" : "text-green-600"
+          }`}
+        >
           {message}
         </div>
       )}
