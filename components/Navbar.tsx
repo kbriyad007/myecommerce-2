@@ -19,7 +19,7 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
 
   const handleLoginSuccess = () => {
     setShowLogin(false);
-    router.push("/admin");
+    router.push("/admin"); // Or your dashboard route
   };
 
   const navLinks = [
@@ -64,7 +64,7 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
               className="w-full text-sm px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
             />
             {searchValue && suggestions.length > 0 && (
-              <ul className="absolute mt-1 bg-white w-full shadow-lg border rounded-md z-10">
+              <ul className="absolute mt-1 bg-white w-full shadow-lg border rounded-md z-10 max-h-60 overflow-auto">
                 {suggestions
                   .filter((s) =>
                     s.toLowerCase().includes(searchValue.toLowerCase())
@@ -97,6 +97,7 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className="lg:hidden text-gray-700"
+              aria-label="Toggle menu"
             >
               {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -132,7 +133,7 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
                 className="w-full text-sm px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
               />
               {searchValue && suggestions.length > 0 && (
-                <ul className="absolute mt-1 bg-white w-full shadow-lg border rounded-md z-10">
+                <ul className="absolute mt-1 bg-white w-full shadow-lg border rounded-md z-10 max-h-60 overflow-auto">
                   {suggestions
                     .filter((s) =>
                       s.toLowerCase().includes(searchValue.toLowerCase())
@@ -164,12 +165,13 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
             <button
               onClick={() => setShowLogin(false)}
               className="absolute top-2 right-3 text-gray-500 hover:text-black text-xl font-bold"
+              aria-label="Close login modal"
             >
               ×
             </button>
             <LoginFormSection
               onSuccess={handleLoginSuccess}
-              onClose={() => setShowLogin(false)} // ✅ Fix: pass required onClose
+              onClose={() => setShowLogin(false)}
             />
           </div>
         </div>
