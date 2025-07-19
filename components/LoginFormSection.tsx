@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { auth } from "@/lib/firebase.config"; // make sure your firebase config exports `auth`
+import { auth } from "@/lib/firebase.config"; // your firebase config should export `auth`
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -10,7 +10,12 @@ import {
 import { useRouter } from "next/navigation";
 import { Mail, Lock, LogIn, UserPlus } from "lucide-react";
 
-export default function LoginFormSection() {
+interface LoginFormSectionProps {
+  onSuccess?: () => void;
+  onClose?: () => void;
+}
+
+export default function LoginFormSection({ onSuccess, onClose }: LoginFormSectionProps) {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -33,7 +38,11 @@ export default function LoginFormSection() {
         }
 
         setMessage("Login successful!");
-        router.push("/dashboard"); // Change to your desired page
+
+        if (onSuccess) onSuccess();
+
+        // You can also navigate here if you want, or let parent handle
+        // router.push("/dashboard");
       } else {
         // Sign up
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -42,6 +51,8 @@ export default function LoginFormSection() {
         await sendEmailVerification(user);
         setMessage("Signup successful! Please check your email for verification.");
         setIsLogin(true); // Switch to login after signup
+
+        if (onSuccess) onSuccess();
       }
     } catch (error: unknown) {
       const err = error as Error;
@@ -49,22 +60,20 @@ export default function LoginFormSection() {
     }
   };
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
   return (
-    <section className="max-w-md mx-auto mt-12 p-6 bg-white rounded-xl shadow-md space-y-4">
+    <section className="max-w-md mx-auto mt-6 p-6 bg-white rounded-xl shadow-md space-y-4">
       <h2 className="text-2xl font-semibold text-center">
         {isLogin ? "Login" : "Sign Up"}
       </h2>
 
       {message && (
-        <p className="text-sm text-center text-red-500">{message}</p>
+        <p
+          className={`text-sm text-center ${
+            message.toLowerCase().includes("successful") ? "text-green-600" : "text-red-500"
+          }`}
+        >
+          {message}
+        </p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -79,7 +88,7 @@ export default function LoginFormSection() {
               type="email"
               required
               value={email}
-              onChange={handleEmailChange}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full outline-none"
               placeholder="you@example.com"
             />
@@ -97,7 +106,7 @@ export default function LoginFormSection() {
               type="password"
               required
               value={password}
-              onChange={handlePasswordChange}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full outline-none"
               placeholder="••••••••"
             />
@@ -130,6 +139,18 @@ export default function LoginFormSection() {
           {isLogin ? "Sign up" : "Login"}
         </button>
       </p>
+
+      {/* Optional close button, if you want to allow closing from inside */}
+      {onClose && (
+        <div className="text-center mt-2">
+          <button
+            onClick={onClose}
+            className="text-sm text-gray-500 hover:underline"
+          >
+            Close
+          </button>
+        </div>
+      )}
     </section>
   );
 }
