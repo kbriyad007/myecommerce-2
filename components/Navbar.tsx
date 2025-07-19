@@ -1,31 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { auth } from "@/lib/firebase.config"; // import your firebase auth instance
-import { onAuthStateChanged, User } from "firebase/auth";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import LoginFormSection from "./LoginFormSection";
 
 interface NavbarProps {
   onSearch: (value: string) => void;
-  suggestions: string[];
+  // Removed suggestions since it was unused
 }
 
-export default function Navbar({ onSearch, suggestions }: NavbarProps) {
+export default function Navbar({ onSearch }: NavbarProps) {
   const [searchValue, setSearchValue] = useState("");
   const [showLogin, setShowLogin] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-
-  // Listen for auth state changes to get user info
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-
-    return () => unsubscribe();
-  }, []);
+  const router = useRouter();
 
   const navLinks = [
     { label: "Home", href: "/" },
@@ -72,19 +62,12 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
 
           {/* Right buttons */}
           <div className="flex items-center gap-4">
-            {user ? (
-              // Show email if logged in
-              <span className="text-gray-700 text-sm font-medium">
-                {user.email}
-              </span>
-            ) : (
-              <button
-                onClick={() => setShowLogin(true)}
-                className="text-sm font-medium text-blue-600 hover:underline"
-              >
-                Login
-              </button>
-            )}
+            <button
+              onClick={() => setShowLogin(true)}
+              className="text-sm font-medium text-blue-600 hover:underline"
+            >
+              Login
+            </button>
 
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -140,7 +123,9 @@ export default function Navbar({ onSearch, suggestions }: NavbarProps) {
             >
               ×
             </button>
-            <LoginFormSection onClose={() => setShowLogin(false)} />
+            <LoginFormSection
+              onClose={() => setShowLogin(false)}
+            />
           </div>
         </div>
       )}
