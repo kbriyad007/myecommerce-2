@@ -192,10 +192,7 @@ export default function Page() {
             >
               &times;
             </button>
-            <LoginFormSection
-              onSuccess={() => setShowForm(false)}
-              onClose={() => setShowForm(false)}
-            />
+            <LoginFormSection onClose={() => setShowForm(false)} />
           </div>
         </div>
       )}
